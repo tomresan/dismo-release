@@ -1,8 +1,7 @@
-# DisMo
 [![Project Page](https://img.shields.io/badge/Project-Page-blue)](https://compvis.github.io/flow-poke-transformer/)
 [![Paper](https://img.shields.io/badge/arXiv-paper-b31b1b)](https://arxiv.org/abs/2510.12777)
 [![Weights](https://img.shields.io/badge/HuggingFace-Weights-orange)](https://huggingface.co/CompVis/flow-poke-transformer)
-<h2 align="center">Disentangled Motion Representations for Open-World Motion Transfer</h2>
+<h2 align="center"><i>DisMo</i>: Disentangled Motion Representations for Open-World Motion Transfer</h2>
 <div align="center"> 
   <a href="https://www.linkedin.com/in/thomas-ressler-494758133/" target="_blank">Thomas Ressler-Antal</a> · 
   <a href="https://ffundel.de/" target="_blank">Frank Fundel</a><sup>*</sup> · 
@@ -21,7 +20,7 @@
   NeurIPS 2025 Spotlight
 </p>
 
-![FPT predicts distributions of potential motion for sparse points](docs/static/images/teaser_fig.png)
+![DisMo learns abstract motion representations that enable open-world motion transer](docs/static/images/new_title.png)
 
 <i>DisMo</i> learns an abstract motion representation space from open-world videos that is invariant to static content information by utilizing an image-space reconstruction objective. This invariance is leveraged for motion transfer by fine-tuning a pre-trained video model conditioned on this motion representation. 
 
