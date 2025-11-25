@@ -370,8 +370,12 @@ def better_resize(imgs: torch.Tensor, image_size: int) -> torch.Tensor:
         imgs = imgs.unsqueeze(0)
 
     side = min(H, W)
+    factor = side // image_size
+
     imgs = TF.center_crop(imgs, [side, side])
-    imgs = F.interpolate(imgs, [image_size, image_size], mode="bilinear", antialias=True)
+    if factor > 1:
+        imgs = F.avg_pool2d(imgs, factor)
+    imgs = F.interpolate(imgs, [image_size, image_size], mode="bilinear")
 
     if len(ss) == 3:
         imgs = imgs[0]
@@ -381,7 +385,7 @@ def better_resize(imgs: torch.Tensor, image_size: int) -> torch.Tensor:
 class DinoFeatureExtractor(nn.Module):
     def __init__(
         self,
-        image_size: int = 448,
+        image_size: int = 224,
         model_version: str = "dinov2_vitb14_reg",
         gradient_last_blocks: None | int = None,
         requires_grad: bool = False,
@@ -428,20 +432,21 @@ class DinoFeatureExtractor(nn.Module):
                 l.requires_grad_(True)
                 l.train()
 
-    def forward(self, imgs: Float[torch.Tensor, "b c h w"]) -> Float[torch.Tensor, "b c h' w'"]:
+    def forward(self, imgs: Float[torch.Tensor, "b h w c"]) -> Float[torch.Tensor, "b h' w' c"]:
         # assert imgs.min() >= -1.0
         # assert imgs.max() <= 1.0
         # assert len(imgs.shape) == 4
 
+        imgs = imgs.permute(0, 3, 1, 2)  # b h w c
         imgs = better_resize(imgs, self.image_size)
         imgs = (imgs + 1.0) / 2.0  # [-1,1] -> [0,1]
-        imgs = (imgs - torch.tensor([0.485, 0.456, 0.406], device=imgs.device).view(1, -1, 1, 1)) / torch.tensor(
-            [0.229, 0.224, 0.225], device=imgs.device
-        ).view(1, -1, 1, 1)
+        imgs = (
+            imgs - torch.tensor([0.48145466, 0.4578275, 0.40821073], device=imgs.device)[:, None, None]
+        ) / torch.tensor([0.26862954, 0.26130258, 0.27577711], device=imgs.device)[:, None, None]
         d = self.model.forward_features(imgs, masks=None)
 
         features = einops.rearrange(
-            d["x_norm_patchtokens"], "b (h w) d -> b d h w", h=self.image_size // 14, w=self.image_size // 14
+            d["x_norm_patchtokens"], "b (h w) d -> b h w d", h=self.image_size // 14, w=self.image_size // 14
         )
         return features
 

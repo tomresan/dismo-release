@@ -108,6 +108,7 @@ class TransformerLayer(nn.Module):
         self.self_qkv = nn.Linear(d_model, d_model * 3, bias=False)
         self.self_scale = nn.Parameter(torch.full([self.n_heads], 10.0))
         self.self_out = nn.Linear(d_model, d_model, bias=False)
+        nn.init.zeros_(self.self_out.weight)
 
         if d_cross is not None:
             self.cross_norm_q = RMSNorm(d_model) if d_cond_norm is None else AdaRMSNorm(d_model, d_cond_norm)
@@ -116,6 +117,7 @@ class TransformerLayer(nn.Module):
             self.cross_kv = nn.Linear(d_cross, d_model * 2, bias=False)
             self.cross_scale = nn.Parameter(torch.full([self.n_heads], 10.0))
             self.cross_out = nn.Linear(d_model, d_model, bias=False)
+            nn.init.zeros_(self.cross_out.weight)
 
         d_ff = d_model * ff_expand
         # self.ffn_norm = RMSNorm(d_model) if d_cond_norm is None else AdaRMSNorm(d_model, d_cond_norm)
@@ -124,10 +126,6 @@ class TransformerLayer(nn.Module):
         self.ff = FeedForwardBlock(d_model, d_ff, d_cond_norm, dropout=dropout)
 
         self.dropout = nn.Dropout(dropout)
-
-        nn.init.zeros_(self.self_out.weight)
-        nn.init.zeros_(self.cross_out.weight)
-        nn.init.zeros_(self.ffn_down.weight)
 
     def fwd_self(
         self, 
@@ -143,7 +141,7 @@ class TransformerLayer(nn.Module):
         qkv = self.self_qkv(x)
 
         q, k, v = rearrange(qkv, "n l (t nh e) -> t n nh l e", t=3, e=self.d_head)
-        q, k = scale_for_cosine_sim(q, k, self.scale[:, None, None], torch.tensor(1e-6, device=x.device))
+        q, k = scale_for_cosine_sim(q, k, self.self_scale[:, None, None], torch.tensor(1e-6, device=x.device))
 
         # theta = self.self_pos_emb(pos.to(qkv.dtype)).movedim(-2, -3)
         # q = self.self_pos_emb.apply_emb(q, theta)
@@ -177,7 +175,7 @@ class TransformerLayer(nn.Module):
 
         q = rearrange(q, "n l (nh e) -> n nh l e", e=self.d_head)
         k, v = rearrange(kv, "n l (t nh e) -> t n nh l e", t=2, e=self.d_head)
-        q, k = scale_for_cosine_sim(q, k, self.scale[:, None, None], torch.tensor(1e-6, device=x.device))
+        q, k = scale_for_cosine_sim(q, k, self.cross_scale[:, None, None], torch.tensor(1e-6, device=x.device))
 
         # pos = pos.to(q.dtype)
         # pos_cross = pos_cross.to(q.dtype)
@@ -242,8 +240,8 @@ class Transformer(nn.Module):
         pos_cross: Float[torch.Tensor, "b l_cross 2"] | None = None,
         **kwargs,
     ) -> Float[torch.Tensor, "b l d_out"]:
-        theta = self.pos_emb(pos)
-        theta_cross = None if pos_cross is None else self.pos_emb(pos_cross)
+        theta = self.pos_emb(pos).movedim(-2, -3)
+        theta_cross = None if pos_cross is None else self.pos_emb(pos_cross).movedim(-2, -3)
         for layer in self.layers:
             x = layer(x, x_cross=x_cross, theta=theta, theta_cross=theta_cross, **kwargs)
         return x

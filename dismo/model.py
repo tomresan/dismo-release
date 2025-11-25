@@ -1,4 +1,5 @@
 import math
+from functools import partial
 from typing import Union, List, Optional, Any
 import numpy as np
 import torch
@@ -99,18 +100,18 @@ def make_axial_pos_3d(
 
 
 class AxialRoPE2D(nn.Module):
-    def __init__(self, dim: int, n_heads: int):
+    def __init__(self, d_head: int, n_heads: int):
         super().__init__()
         # we only apply RoPE to half of the token
-        assert dim % 2 == 0, "Number of dimensions must be even"
-        dim //= 2
+        assert d_head % 2 == 0, "Number of head dimensions must be even"
+        d_head //= 2
         min_freq = math.pi
         max_freq = 10.0 * math.pi
         log_min = math.log(min_freq)
         log_max = math.log(max_freq)
         # 2 * 2 for sin and cos, height and width
-        freqs = torch.stack([torch.linspace(log_min, log_max, n_heads * dim // (2 * 2) + 1)[:-1].exp()] * 2)
-        self.freqs = nn.Parameter(freqs.view(2, dim // (2 * 2), n_heads).mT.contiguous(), requires_grad=False)
+        freqs = torch.stack([torch.linspace(log_min, log_max, n_heads * d_head // (2 * 2) + 1)[:-1].exp()] * 2)
+        self.freqs = nn.Parameter(freqs.view(2, d_head // (2 * 2), n_heads).mT.contiguous(), requires_grad=False)
 
     def forward(self, pos):
         theta_h = pos[..., None, 0:1] * self.freqs[0].to(pos.dtype)
@@ -119,9 +120,9 @@ class AxialRoPE2D(nn.Module):
 
 
 class AxialRoPE3D(nn.Module):
-    def __init__(self, dim, n_heads, temporal_theta=100):
+    def __init__(self, d_head, n_heads, temporal_theta=100):
         super().__init__()
-        n_freqs = n_heads * dim // 8
+        n_freqs = n_heads * d_head // 8
         min_freq = math.pi
         max_freq = 10.0 * math.pi
         log_min = math.log(min_freq)
@@ -129,8 +130,8 @@ class AxialRoPE3D(nn.Module):
         spatial_freqs = torch.linspace(log_min, log_max, n_freqs + 1)[:-1].exp()
         spatial_freqs = torch.stack([spatial_freqs] * 2)
         temporal_freqs = 1.0 / (temporal_theta ** (torch.arange(0, n_freqs).float() / (n_freqs)))
-        self.spatial_freqs = nn.Parameter(spatial_freqs.view(2, dim // 8, n_heads).mT.contiguous(), requires_grad=False)
-        self.temporal_freqs = nn.Parameter(temporal_freqs.view(dim // 8, n_heads).T.contiguous(), requires_grad=False)
+        self.spatial_freqs = nn.Parameter(spatial_freqs.view(2, d_head // 8, n_heads).mT.contiguous(), requires_grad=False)
+        self.temporal_freqs = nn.Parameter(temporal_freqs.view(d_head // 8, n_heads).T.contiguous(), requires_grad=False)
 
     def forward(self, pos):
         theta_t = pos[..., None, 0:1] * self.temporal_freqs
@@ -232,13 +233,12 @@ class FrameGenerator(nn.Module):
         width: int,
         depth: int,
         d_head: int,
+        d_motion: int = 128,
         source_encoder_params: dict[str, Any] = {},
         patch_size: tuple[int, int] = (2, 2),
         mapping_depth: int = 2,
         mapping_width: int = 1024,
         mapping_dropout: float = 0,
-        motion_features: int = 128,
-        val_shape: Optional[List[int]] = None,
     ):
         super().__init__()
 
@@ -265,9 +265,8 @@ class FrameGenerator(nn.Module):
         self.time_emb = FourierFeatures(1, mapping_width)
         self.time_in_proj = nn.Linear(mapping_width, mapping_width, bias=False)
         
-        self.motion_proj = nn.Linear(motion_features + mapping_width, mapping_width, bias=False)
+        self.motion_proj = nn.Linear(d_motion + mapping_width, mapping_width, bias=False)
         self.patch_size = patch_size
-        self.val_shape = val_shape
 
         nn.init.zeros_(self.motion_proj.weight)
 
@@ -370,7 +369,6 @@ class MotionExtractor(Transformer):
         d_motion: int, 
         frame_encoder_params: dict[str, Any] = {},
         max_delta_time: int = 1,
-        causal: bool = True,
         train_resolution: list = [8, 256, 256],
     ):
         super().__init__(width=width, depth=depth, d_head=d_head, pos_emb_cls=AxialRoPE3D)
@@ -385,7 +383,6 @@ class MotionExtractor(Transformer):
         )
         self.query_tokens = nn.Parameter(torch.empty(1, 1, width))
         self.max_delta_time = max_delta_time
-        self.causal = causal
         self.train_resolution = train_resolution
         nn.init.normal_(self.query_tokens, std=0.02)
     
@@ -406,21 +403,10 @@ class MotionExtractor(Transformer):
         query_tokens = self.query_tokens.repeat(B, T - self.max_delta_time, 1)
         query_pos = make_axial_pos_3d(T - self.max_delta_time, 1, 1, device=x.device).expand(B, -1, 3)
 
-        # Compute causal attention mask
-        if self.causal is not None:
-            ts = torch.arange(T, device=x.device)
-            idcs = torch.cat([
-                ts.repeat_interleave(H * W),
-                ts[self.max_delta_time:].repeat_interleave(self.query_tokens.shape[2]),
-            ])
-            attn_mask = idcs[:, None] >= idcs[None, :]
-            attn_mask = attn_mask.expand(B, -1, -1)
-
         # Forward pass
         motion_embeddings = super().forward(
             x=torch.cat([query_tokens, x], dim=1),
             pos=torch.cat([query_pos, pos], dim=1),
-            attn_mask=attn_mask if self.causal else None,
         )
         motion_embeddings = motion_embeddings[:, :query_tokens.shape[1]]
         motion_embeddings = self.head(motion_embeddings)
@@ -451,17 +437,6 @@ class MotionExtractor(Transformer):
         # Compute query tokens
         query_tokens = self.query_tokens.repeat(B, T_max - lookahead, 1)
         query_pos = make_axial_pos_3d(T_max - lookahead, 1, 1, device=x.device).expand(B, -1, 3)
-
-        # Compute causal attention mask
-        if self.causal is not None:
-            ts = torch.arange(T_max, device=x.device)
-            idcs = torch.cat([
-                ts.repeat_interleave(H * W),
-                ts[lookahead:].repeat_interleave(self.query_tokens.shape[2]),
-            ])
-            attn_mask = idcs[:, None] >= idcs[None, :]
-            attn_mask = attn_mask.expand(B, -1, -1)
-        
         
         window_offsets = list(range(max(T - self.train_resolution[0], 0) + 1))
         x_b = torch.cat([
@@ -469,7 +444,7 @@ class MotionExtractor(Transformer):
             for t in window_offsets
         ])
         pos_b = torch.cat([query_pos, pos], dim=1).repeat(len(window_offsets), 1, 1)
-        embs_b = super().forward(x=x_b, pos=pos_b, attn_mask=attn_mask if self.causal else None)
+        embs_b = super().forward(x=x_b, pos=pos_b)
         embs_b = embs_b[:, :query_tokens.shape[1]]
         embs_b = self.head(embs_b)
         embs_b = rearrange(embs_b, "(a b) t d -> a b t d", a=len(window_offsets))
@@ -483,7 +458,7 @@ class MotionExtractor(Transformer):
 # DisMo Model
 # ================================================================================================
 
-class Dismo(nn.Module):
+class DisMo(nn.Module):
     def __init__(
         self, 
         motion_extractor_params: dict[str, Any], 
@@ -515,12 +490,48 @@ class Dismo(nn.Module):
             'motion_std_video': motion_embeddings.std(dim=2).mean(),
         }
         return loss, metrics
-    
-    # @staticmethod
-    # def load_from_config(path, freeze=True):
-    #     model: Dismo = load_model_inference(path, strict=False)[0]
-    #     if freeze:
-    #         model.requires_grad_(False)
-    #         model.eval()
-    #         model.train = lambda x: x
-    #     return model
+
+
+DisMo_Large = partial(
+    DisMo, 
+    motion_extractor_params=dict(
+        width=1024,
+        depth=20,
+        d_head=64,
+        d_motion=128,
+        frame_encoder_params=dict(
+            model_version="dinov2_vitl14_reg",
+            gradient_last_blocks=2,
+        ),
+        max_delta_time=4,
+        train_resolution=[8, 256, 256],
+    ),
+    frame_generator_params=dict(
+        width=1152,
+        depth=28,
+        d_head=72,
+        source_encoder_params=dict(
+            model_version="dinov2_vitl14_reg",
+            gradient_last_blocks=2,
+        ),
+        patch_size=(2, 2),
+        mapping_depth=2,
+        mapping_width=1024,
+        mapping_dropout=0.0,
+        d_motion=128,
+    ),
+)
+
+MotionExtractor_Large = partial(
+    MotionExtractor,
+    width=1024,
+    depth=20,
+    d_head=64,
+    d_motion=128,
+    frame_encoder_params=dict(
+        model_version="dinov2_vitl14_reg",
+        gradient_last_blocks=2,
+    ),
+    max_delta_time=4,
+    train_resolution=[8, 256, 256],
+)
