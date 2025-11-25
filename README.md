@@ -1,6 +1,6 @@
-[![Project Page](https://img.shields.io/badge/Project-Page-blue)](https://compvis.github.io/flow-poke-transformer/)
-[![Paper](https://img.shields.io/badge/arXiv-paper-b31b1b)](https://arxiv.org/abs/2510.12777)
-[![Weights](https://img.shields.io/badge/HuggingFace-Weights-orange)](https://huggingface.co/CompVis/flow-poke-transformer)
+[![Project Page](https://img.shields.io/badge/Project-Page-blue)](https://compvis.github.io/dismo/)
+[![Paper](https://img.shields.io/badge/arXiv-paper-b31b1b)](https://openreview.net/forum?id=jneVld5iZw)
+[![Weights](https://img.shields.io/badge/HuggingFace-Weights-orange)](https://huggingface.co/CompVis/dismo)
 <h2 align="center"><i>DisMo</i>: Disentangled Motion Representations for Open-World Motion Transfer</h2>
 <div align="center"> 
   <a href="https://www.linkedin.com/in/thomas-ressler-494758133/" target="_blank">Thomas Ressler-Antal</a> · 
@@ -21,12 +21,11 @@
 </p>
 
 
-![DisMo learns abstract motion representations that enable open-world motion transer](docs/static/images/new_title.png)
+![DisMo learns abstract motion representations that enable open-world motion transer](docs/static/images/teaser.png)
 
 
-<i>DisMo</i> learns an abstract motion representation space from open-world videos that is invariant to static content information by utilizing an image-space reconstruction objective. This invariance is leveraged for motion transfer by fine-tuning a pre-trained video model conditioned on this motion representation. 
-
-This codebase is a minimal PyTorch implementation covering training & various inference settings.
+## 📋 Overview
+We present <b>DisMo</b>, a paradigm that learns a semantic motion representation space from open-world videos, which is disentangled from static content information such as appearance, structure, and even object category. These properties make extracted representations particularly transferable to novel content. We leverage this and condition off-the-shelf video models on our learned motion embeddings for the task of open-world motion transfer, where DisMo achieves state-of-the-art performance. Beyond that, DisMo's learned representations are also suitable for downstream tasks such as zero-shot action classification.
 
 ## 🚀 Usage
 To use DisMo for motion transfer purposes, we provide a fine-tuned CogVideoX-5B video model, which internally uses a pre-trained motion extrator module. Simply instantiate it and load the provided checkpoint. Please make sure to also provide a valid motion extractor checkpoint path:
