@@ -20,7 +20,9 @@
   NeurIPS 2025 Spotlight
 </p>
 
+
 ![DisMo learns abstract motion representations that enable open-world motion transer](docs/static/images/new_title.png)
+
 
 <i>DisMo</i> learns an abstract motion representation space from open-world videos that is invariant to static content information by utilizing an image-space reconstruction objective. This invariance is leveraged for motion transfer by fine-tuning a pre-trained video model conditioned on this motion representation. 
 
