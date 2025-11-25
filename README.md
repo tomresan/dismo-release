@@ -25,7 +25,7 @@
 
 
 ## 📋 Overview
-We present <b>DisMo</b>, a paradigm that learns a semantic motion representation space from open-world videos, which is disentangled from static content information such as appearance, structure, and even object category. These properties make extracted representations particularly transferable to novel content. We leverage this and condition off-the-shelf video models on our learned motion embeddings for the task of open-world motion transfer, where DisMo achieves state-of-the-art performance. Beyond that, DisMo's learned representations are also suitable for downstream tasks such as zero-shot action classification.
+We present <b>DisMo</b>, a paradigm that learns a semantic motion representation space from videos that is disentangled from static content information such as appearance, structure, and even object category. These properties make extracted representations particularly transferable to novel content. We leverage this and condition off-the-shelf video models on our learned motion embeddings for the task of open-world motion transfer, where DisMo achieves state-of-the-art performance. Beyond that, DisMo's learned representations are also suitable for downstream tasks such as zero-shot action classification.
 
 ## 🚀 Usage
 To use DisMo for motion transfer purposes, we provide a fine-tuned CogVideoX-5B video model, which internally uses a pre-trained motion extrator module. Simply instantiate it and load the provided checkpoint. Please make sure to also provide a valid motion extractor checkpoint path:
