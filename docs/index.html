@@ -26,7 +26,7 @@
   <meta name="twitter:image" content="https://github.com/tomresan/dismo-release/docs/static/images/teaser.png">
   <meta name="twitter:card" content="DisMo learns abstract motion representations that enable open-world motion transer">
   <!-- Keywords for your paper to be indexed by-->
-  <meta name="keywords" content="Motion Understanding, Generative Models">
+  <meta name="keywords" content="Motion Understanding, Motion Transfer, Video Representations, Generative Models">
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 32 32%22><text y=%221em%22 font-size=%2232%22>📌</text></svg>">
@@ -59,34 +59,42 @@
       <div class="container is-max-desktop">
         <div class="columns is-centered">
           <div class="column has-text-centered">
-            <h1 class="title is-1 publication-title"> <i>What If:</i> Understanding Motion Through Sparse Interactions</h1>
+            <h1 class="title is-1 publication-title"> <i>DisMo:</i> Disentangled Motion Representations for Open-World Motion Transfer</h1>
             <div class="is-size-5 publication-authors">
               <!-- Paper authors -->
               <span class="author-block">
-                <a href="https://stefan-baumann.eu/" target="_blank">Stefan Andreas Baumann</a><sup>*</sup>,</span>
+                <a href="https://www.linkedin.com/in/thomas-ressler-494758133/" target="_blank">Thomas Ressler-Antal</a> · </span>
               <span class="author-block">
-                <a href="https://nickstracke.dev/" target="_blank">Nick Stracke</a><sup>*</sup>,</span>
+                <a href="https://ffundel.de/" target="_blank">Frank Fundel</a><sup>*</sup> · </span>
               <span class="author-block">
-                <a href="" target="_blank">Timy Phan</a><sup>*</sup>,
-              </span>
+                <a href="https://www.linkedin.com/in/malek-ben-alaya/" target="_blank">Malek Ben Alaya</a><sup>*</sup></span>
+              <br>
               <span class="author-block">
-                <a href="https://ommer-lab.com/people/ommer/" target="_blank">Björn Ommer</a>
-              </span>
+                <a href="https://stefan-baumann.eu/" target="_blank">Stefan A. Baumann</a> · </span>
+              <span class="author-block">
+                <a href="https://www.linkedin.com/in/felixmkrause/" target="_blank">Felix Krause</a> · </span>
+              <span class="author-block">
+                <a href="https://www.linkedin.com/in/ming-gui-87b76a16b/" target="_blank">Ming Gui</a> · </span>
+              <span class="author-block">
+                <a href="https://ommer-lab.com/people/ommer/" target="_blank">Björn Ommer</a></span>
             </div>
 
             <div class="is-size-5 publication-authors">
-              <span class="author-block">CompVis @ LMU Munich, MCML &nbsp;&nbsp;&nbsp; *equal contribution</span>
+              <span class="author-block"> <b>CompVis @ LMU Munich, MCML</b>
+                <br>
+                <i>* equal contribution</i>
+              </span>
               <!-- <span class="eql-cntrb"><sup>*</sup>Indicates Equal Contribution</span> -->
             </div>
             <div class="is-size-5 publication-venue">
-              <span>ICCV 2025</span>
+              <span>NeurIPS 2025 Spotlight</span>
             </div>
 
             <div class="column has-text-centered">
               <div class="publication-links">
                 <!--  PDF link -->
                 <span class="link-block">
-                  <a href="static/what_if.pdf" target="_blank"
+                  <a href="static/dismo.pdf" target="_blank"
                     class="external-link button is-normal is-rounded is-dark">
                     <span class="icon">
                       <i class="fas fa-file-pdf"></i>
@@ -98,7 +106,7 @@
 
                 <!-- Github link -->
                 <span class="link-block">
-                  <a href="https://github.com/CompVis/flow-poke-transformer" target="_blank"
+                  <a href="https://github.com/CompVis/dismo" target="_blank"
                     class="external-link button is-normal is-rounded is-dark">
                     <span class="icon">
                       <i class="fab fa-github"></i>
@@ -110,7 +118,7 @@
                 <!-- ArXiv abstract Link -->
 
                 <span class="link-block">
-                  <a href="https://arxiv.org/abs/2510.12777" target="_blank"
+                  <a href="https://openreview.net/forum?id=jneVld5iZw" target="_blank"
                     class="external-link button is-normal is-rounded is-dark">
                     <span class="icon">
                       <i class="ai ai-arxiv"></i>
@@ -122,7 +130,7 @@
 
                 <!-- HF weights Link -->
                 <span class="link-block">
-                  <a href="https://huggingface.co/CompVis/flow-poke-transformer" target="_blank"
+                  <a href="https://huggingface.co/CompVis/dismo" target="_blank"
                     class="external-link button is-normal is-rounded is-dark">
                     <span class="icon">
                       <img src="https://huggingface.co/front/assets/huggingface_logo-noborder.svg" alt="Hugging Face"
@@ -147,7 +155,7 @@
         <div class="columns is-centered has-text-centered">
           <div class="column is-four-fifths">
 
-            <img src="static/images/teaser_fig.png" alt="" style="width: 100%; height: auto;">
+            <img src="static/images/teaser.png" alt="" style="width: 100%; height: auto;">
           </div>
 
         </div>
@@ -177,7 +185,7 @@
           <h2 class="title is-3">Abstract</h2>
           <div class="content has-text-justified">
             <p class="has-text-justified" style="font-size: 16px;">
-              Understanding the dynamics of a physical scene involves reasoning about the diverse ways it can potentially change, especially as a result of local interactions. We present the Flow Poke Transformer (FPT), a novel framework for directly predicting the distribution of local motion, conditioned on sparse interactions termed “pokes”. Unlike traditional methods that typically only enable dense sampling of a single realization of scene dynamics, FPT provides an interpretable directly accessible representation of multi-modal scene motion, its dependency on physical interactions and the inherent uncertainties of scene dynamics.</p><p class="has-text-justified" style="font-size: 16px;"> We also evaluate our model on several downstream tasks to enable comparisons with prior methods and highlight the flexibility of our approach. On dense face motion generation, our generic pre-trained model surpasses specialized baselines. FPT can be fine-tuned in strongly out-of-distribution tasks such as synthetic datasets to enable significant improvements over in-domain methods in articulated object motion estimation. Additionally, predicting explicit motion distributions directly enables our method to achieve competitive performance on  tasks like moving part segmentation from pokes which further demonstrates the versatility of our FPT.
+              Recent advances in text-to-video (T2V) and image-to-video (I2V) models, have enabled the creation of visually compelling and dynamic videos from simple textual descriptions or initial frames. However, these models often fail to provide an explicit representation of motion separate from content, limiting their applicability for content creators. To address this gap, we propose <i><b>DisMo</b></i>, a novel paradigm for learning abstract motion representations directly from raw video data via an image-space reconstruction objective. Our representation is generic and independent of static information such as appearance, object identity, or pose. This enables open-world motion transfer, allowing motion to be transferred across semantically unrelated entities without requiring object correspondences, even between vastly different categories. Unlike prior methods, which trade off motion fidelity and prompt adherence, are overfitting to source structure or drifting from the described action, our approach disentangles motion semantics from appearance, enabling accurate transfer and faithful conditioning. Furthermore, our motion representation can be combined with any existing video generator via lightweight adapters, allowing us to effortlessly benefit from future advancements in video models. We demonstrate the effectiveness of our method through a diverse set of motion transfer tasks. Finally, we show that the learned representations are well-suited for downstream motion understanding tasks, consistently outperforming state-of-the-art video representation models such as V-JEPA in zero-shot action classification on benchmarks including Something-Something v2 and Jester.
             </p>
           </div>
         </div>
@@ -185,55 +193,20 @@
     </div>
   </section>
   <!-- End paper abstract -->
+
+
+
   <section class="section hero">
-    <div class="container is-max-desktop">
-      <div class="columns is-centered has-text-centered">
-        <div class="column">
-          <h2 class="title is-3">How can objects move and interact in the world?</h2>
-          <div class="content">
-            <div class="columns is-centered has-text-centered">
-              <div class="column is-four-fifths">
-                <img src="static/images/flow_poke_distributions_qualitative-1.png" alt="" style="width: 100%; height: auto;">
-              </div>
-            </div>
-            <p class="has-text-justified" style="font-size: 16px;">
-              Our Flow Poke Transformer directly models sparse kinematics for its queries and predicts multimodal motion distributions which are diverse, but also show realistic understanding of physical movement in scenes. Its training objective is to predict Gaussian Mixture Models (GMMs) in a single forward pass by minimizing the NLL of its output distributions. Once the GMMs have been generated, samples can be drawn directly from them with minimal latency.</p><p class="has-text-justified" style="font-size: 16px;"> The primary advantage of modeling sparse motion lies in the reduced computational overhead during both training and inference. Coupled with our query-causal attention pattern (s. the paper for more details) which further reduces computational complexity, this enables us to train a Flow Poke Transformer within 1 day on 8 H200s and sample >100k queries in a second for one image on a single H200.
-            </p>
-            <div class="columns is-centered has-text-centered">
-              <div class="column is-four-fifths">
-                <img src="static/images/mode_analysis.png" alt="" style="width: 100%; height: auto;">
-              </div>
-            </div>
-            <p class="has-text-justified" style="font-size: 16px;">
-              Generative modelling of distributions benefits from multi-step approaches like diffusion models which suffer from high latency, but are less prone to issues like mode collapse or mode averaging. Our Flow Poke Transformer is a single-step generative model which predicts diverse modes and tends to be confident in correct modes. We find that the predicted uncertainty correlates strongly with the prediction motion's error when compared to the ground truth.
-            </p>
-            <div class="columns is-centered has-text-centered">
-              <div class="column is-four-fifths">
-                <img src="static/images/calibration.png" alt="" style="width: 100%; height: auto;">
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-
-
-
-
-
-
-  <section class="section hero is-light">
     <div class="container is-max-desktop">
       <div class="columns is-centered has-text-centered">
         <div class="column is-four-fifths">
-          <h2 class="title is-3">High-level Overview</h2>
+          <h2 class="title is-3">Method</h2>
           <div class="content has-text-justified">
-            <img src="static/images/architecture.png" alt="" style="width: 100%; height: auto; margin-bottom: 20px;">
+            <img src="static/images/architecture.svg" alt="" style="width: 100%; height: auto; margin-bottom: 20px;">
             <p class="has-text-justified" style="font-size: 16px;">
-              Given an image, a set of given pokes (visualized as arrows →), and query positions (<span style="color:#ff7f0e">×</span>), our model directly predicts an explicit distribution of the movement at each query position. The flow poke transformer
-              cross-attends to features from a jointly trained image encoder to incorporate visual information. Crucially, our architecture represents movement at individual points (enabling sparse & off-grid motion processing) and directly predicts continuous, multimodal output distributions.
+              \textbf{(a)} During training, our motion extractor $\motionextractor$ receives augmented frames from a video $\video$, along with additional motion query tokens $\mathbf{Q}$. These are then individually passed to the frame generator $\framegenerator$, alongside the corresponding source frame \(\videoframe_t\), from which it learns to reconstruct a frame at a future timestep $\timedestination$. 
+    \textbf{(b)} To transfer a motion sequence $\motionsequence$ onto another target image, we can directly utilize the trained Frame Generator $\mathcal{F}_{\psi}$ autoregressively as a low-cost option.
+    \textbf{(c)} For high-quality motion transfer, we adapt pre-trained off-the-shelf video generation models. A motion sequence is first embedded using a mapping network, before being introduced to the frozen video model. The processed motion sequence is arranged such that each token at timestep \(t\) in the pre-trained backbone receives conditioning only from the temporally corresponding motion embedding $\motion_t$.
             </p>
           </div>
         </div>
@@ -242,7 +215,7 @@
   </section>
 
 
-  <section class="section hero">
+  <section class="section hero is-light">
     <div class="container is-max-desktop">
       <div class="columns is-centered has-text-centered">
         <div class="column">
@@ -303,11 +276,11 @@
   <section class="section" id="BibTeX">
     <div class="container is-max-desktop content">
       <h2 class="title">BibTeX</h2>
-      <pre><code>@inproceedings{baumann2025whatif,
-    title={DisMo: Disentangled Motion Representations for Open-World Motion Transfer}, 
-    author={Stefan Andreas Baumann and Nick Stracke and Timy Phan and Bj{\"o}rn Ommer},
-    booktitle={Proceedings of the IEEE/CVF International Conference on Computer Vision (ICCV)},
-    year={2025}
+      <pre><code>@inproceedings{resslerdismo,
+  title={DisMo: Disentangled Motion Representations for Open-World Motion Transfer},
+  author={Ressler-Antal, Thomas and Fundel, Frank and Alaya, Malek Ben and Baumann, Stefan Andreas and Krause, Felix and Gui, Ming and Ommer, Bj{\"o}rn},
+  booktitle={The Thirty-ninth Annual Conference on Neural Information Processing Systems},
+  year={2025}
 }</code></pre>
     </div>
   </section>
