@@ -25,7 +25,11 @@
 
 
 ## 📋 Overview
-We present <b>DisMo</b>, a paradigm that learns a semantic motion representation space from videos that is disentangled from static content information such as appearance, structure, and even object category. These properties make extracted representations particularly transferable to novel content. We leverage this and condition off-the-shelf video models on our learned motion embeddings for the task of open-world motion transfer, where DisMo achieves state-of-the-art performance. Beyond that, DisMo's learned representations are also suitable for downstream tasks such as zero-shot action classification.
+We present <b>DisMo</b>, a paradigm that learns a semantic motion representation space from videos. These representations are disentangled from static content information such as appearance, structure, viewing angle and even object category, which makes them particularly suitable for attaching them onto novel content. We take advantage of this and condition off-the-shelf video models on our learned motion representations. Our semantic motion space paired with high-fidelity video models enable the task of open-world motion transfer, where we achieves state-of-the-art performance compared to previous methods. Beyond that, DisMo's learned representations are also suitable for downstream applications such as zero-shot action classification.
+
+## 🛠️ Setup
+
+TODO
 
 ## 🚀 Usage
 To use DisMo for motion transfer, we provide the code and weights for a CogVideoX-5B video model variant, which was adapted to be conditioned on motion embeddings and text prompts. You can load the default model variant as follows:
@@ -68,25 +72,29 @@ motion_extractor.load_state_dict(
     torch.load("/path/to/motion/extractor/checkpoint")
 )
 ```
-You may then use the module's `forward_sliding` function to extract motion embeddings from arbitrarily long videos:
+DisMo was trained on video clips of temporal length 8. To be able to extract motion sequences from videos of arbitrary duration, we provide the `forward_sliding` function, which extracts embeddings consecutively in a sliding window fashion:
 ```
 import torch
-video = torch.rand((B, num_frames, 256, 256, 3)).mul(255).byte()
-motion_embeddings = motion_extractor.forward_sliding(video) # [B, num_frames - max_prediction_distance, D]
+
+# videos are expected to have shape [B, T, H, W, C] in (-1, 1) range
+dummy_video = torch.rand((B, num_frames, 256, 256, 3)).mul(2).sub(1)
+
+# we get a motion embedding for each frame, except for the last 4
+motion_embeddings = motion_extractor.forward_sliding(dummy_video)
 ```
-Note that the resulting motion embeddings have a temporal length of `num_frames - max_prediction_distance`, with `max_prediction_distance` being the maximum possible distance between a source and target frame during training.
+Note that the resulting motion embeddings have a temporal length of `num_frames - 4`, since the longest possible prediction distance was set to 4 during training.
 
 
 ## 🔥 Training
-If you want to train DisMo yourself, we provide a training script that is suitable for multi-gpu training.
+If you want to train DisMo yourself, we provide a training script that is suitable for multi-gpu training. Please note that the script instantiates DisMo  with default parameters. To train other variants (e.g., changing the width, depth, etc.) you must modify the `train.py` accordingly. This equally holds true for video model adaptation.
 
-**Data Preparation**
-DisMo only needs unlabelled videos for training. This repository takes advantage of the [webdataset](https://github.com/webdataset/webdataset) library and format for efficient and scalable data loading. Please refer to their page for further instructions on how to shard your video dataset accordingly.
+### Data Preparation
+DisMo needs unlabelled videos for training. This repository takes advantage of the [webdataset](https://github.com/webdataset/webdataset) library and format for efficient and scalable data loading. Please refer to their page for further instructions on how to shard your video files accordingly.
 
-**Launching Training**
+### Launching Training
 Single-GPU training can be launched via
 ```shell
-python train.py --data_tar_base /path/to/preprocessed/shards --out_dir output/test --compile True
+python train.py --data_paths /path/to/preprocessed/shards --out_dir output/test --compile True
 ```
 Similarly, multi-GPU training, e.g., on 2 GPUs, can be launched using torchrun:
 ```shell
@@ -96,12 +104,12 @@ Training can be continued from a previous checkpoint by specifying, e.g., `--loa
 Remove `--compile True` for significantly faster startup time at the cost of slower training & significantly increased VRAM usage.
 
 
-## Models
-We release the weights of our pre-trained motion extractor and the LoRA weight of a fine-tuned CogVideoX-5B via huggingface at https://huggingface.co/CompVis (under the [CC BY-NC 4.0](https://creativecommons.org/licenses/by-nc/4.0/deed.en) license), and will potentially release further variants (scaled up or with other improvements). Due to legal concerns, we do not release the weights of the frame generator that was trained alongside the motion extractor.
+## 🤖 Models
+We release the weights of our pre-trained motion extractor and the LoRA weight of a fine-tuned CogVideoX-5B-I2V variant via huggingface at https://huggingface.co/CompVis (under the [CC BY-NC 4.0](https://creativecommons.org/licenses/by-nc/4.0/deed.en) license), and will potentially release further variants (scaled up or with other improvements). Due to legal concerns, we do not release the weights of the frame generator that was trained alongside the motion extractor.
 
 ## Code Credit
 - Some code is adapted from [flow-poke-transformer](https://github.com/CompVis/flow-poke-transformer) by Stefan A. Baumann et al. (LMU), which in turn adapts some code from  [k-diffusion](https://github.com/crowsonkb/k-diffusion) by Katherine Crowson (MIT)
-- The CogVideoX finetuning code is adapted from [CogKit](https://github.com/THUDM/CogKit) (Apache 2.0)
+- The code for fine-tuning CogVideoX models is adapted from [CogKit](https://github.com/THUDM/CogKit) (Apache 2.0)
 - The DINOv2 code is adapted from [minDinoV2](https://github.com/cloneofsimo/minDinoV2) by Simo Ryu, which is based on the [official implementation](https://github.com/facebookresearch/dinov2/) by Oquab et al. (Apache 2.0)
 
 ## 🎓 Citation

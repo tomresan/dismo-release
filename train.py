@@ -2,6 +2,7 @@
 # SPDX-FileCopyrightText: Copyright 2025 Thomas Ressler-Antal et al., CompVis @ LMU Munich
 
 import os
+import sys
 from pathlib import Path
 import logging
 import random
@@ -32,7 +33,7 @@ def train(
     max_steps: int = 1_000_000,
     warmup_steps: int = 10_000,
     # Data
-    data_tar_base: str = "data",
+    data_paths: str = "data",
     # Training
     local_batch_size: int = 32,
     lr: float = 5e-5,
@@ -109,8 +110,18 @@ def train(
 
     # Important setup stuff
     # If you want to change anything about what you train, you'll likely want to do it here and add it as a parameter to train()
-    model = DisMo_Large().to(device)
-    data = DismoVideoLoader(tar_base=data_tar_base, batch_size=local_batch_size, shuffle=1000)
+    model = DisMo_Large(compile=compile).to(device)
+    data = DismoVideoLoader(
+        data_paths=data_paths, 
+        batch_size=local_batch_size, 
+        shuffle=1000, 
+        shardshuffle=True,
+        repeats=sys.maxsize,
+        num_workers=16,
+        pin_memory=True,
+        partial=False,
+        seed=start_step+42,
+    )
     
     optimizer = torch.optim.AdamW(model.parameters(), lr=lr, betas=(0.9, 0.99), fused=compile)
     scheduler = torch.optim.lr_scheduler.SequentialLR(
@@ -135,13 +146,6 @@ def train(
     # DDP wrapping
     if is_distributed:
         model = DDP(model, device_ids=[local_rank], static_graph=True)  # type: ignore
-
-    # Compile if requested
-    # if compile:
-    #     train_step_inner = torch.compile(
-    #         train_step_inner, fullgraph=False, mode="max-autotune" if autotune else "default"
-    #     )
-    #     rank0logger.info("Model compiled with torch.compile.")
 
     barrier()
 
@@ -215,7 +219,7 @@ if __name__ == "__main__":
     torch._dynamo.config.cache_size_limit = max(64, torch._dynamo.config.cache_size_limit)
 
     # By launching with fire, all arguments become specifyable via the CLI
-    # e.g. python train.py --data_tar_base /path/to/data --local_batch_size 32
+    # e.g. python train.py --data_paths /path/to/data --local_batch_size 32
     try:
         import fire
 

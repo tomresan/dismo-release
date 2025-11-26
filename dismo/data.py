@@ -294,9 +294,7 @@ class BaseVideoLoader(ABC):
         data_paths: str | Sequence[str],
         batch_size: int = 1,
         num_workers: int = 0,
-        video_extension: str | None = None,
         repeats: int = 1,
-        epoch_size: int | None = None,
         shardshuffle: bool = False,
         shuffle: int = 0,
         partial: bool = True,
@@ -313,8 +311,6 @@ class BaseVideoLoader(ABC):
         else:
             raise Exception("`data_paths` must either be a directory or a sequence of tar paths.")
         self.data_paths = data_paths
-        self.video_extension = video_extension
-        self.epoch_size = epoch_size
         self.batch_size = batch_size
         self.partial = partial
         self.n_repeats = repeats
@@ -386,22 +382,16 @@ class BaseVideoLoader(ABC):
                 video_name = entry["__key__"]
 
                 # extract encoded video bytes from entry
-                if self.video_extension is not None:
-                    assert (
-                        self.video_extension in entry
-                    ), f"Video extension {self.video_extension} not found for {video_name}. Skipping."
-                    enc_video = entry.pop(self.video_extension)
-                else:
-                    enc_video = None
-                    ks = tuple(entry.keys())
-                    for e in self.VIDEO_EXTENSIONS:
-                        for k in ks:
-                            if k.endswith(e):
-                                assert (
-                                    enc_video is None
-                                ), "Multiple video entries found in sample. Skipping due to ambiguity."
-                                enc_video = entry.pop(k)
-                    assert enc_video is not None, "No video entry found in sample. Skipping."
+                enc_video = None
+                ks = tuple(entry.keys())
+                for e in self.VIDEO_EXTENSIONS:
+                    for k in ks:
+                        if k.endswith(e):
+                            assert (
+                                enc_video is None
+                            ), "Multiple video entries found in sample. Skipping due to ambiguity."
+                            enc_video = entry.pop(k)
+                assert enc_video is not None, "No video entry found in sample. Skipping."
 
                 # construct video decoder
                 video_decoder = VideoDecoder(enc_video, num_ffmpeg_threads=0)
