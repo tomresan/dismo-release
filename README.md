@@ -28,45 +28,45 @@
 We present <b>DisMo</b>, a paradigm that learns a semantic motion representation space from videos that is disentangled from static content information such as appearance, structure, and even object category. These properties make extracted representations particularly transferable to novel content. We leverage this and condition off-the-shelf video models on our learned motion embeddings for the task of open-world motion transfer, where DisMo achieves state-of-the-art performance. Beyond that, DisMo's learned representations are also suitable for downstream tasks such as zero-shot action classification.
 
 ## 🚀 Usage
-To use DisMo for motion transfer purposes, we provide a fine-tuned CogVideoX-5B video model, which internally uses a pre-trained motion extrator module. Simply instantiate it and load the provided checkpoint. Please make sure to also provide a valid motion extractor checkpoint path:
+To use DisMo for motion transfer, we provide the code and weights for a CogVideoX-5B video model variant, which was adapted to be conditioned on motion embeddings and text prompts. You can load the default model variant as follows:
 ```
 from dismo.video_model_finetuning.cogvideox import CogVideoXMotionAdapter_5B_TI2V_Large
 
-ckpt = torch.load("/path/to/finetuned/cogvideox/checkpoint")
-missing, unexpected = cog.load_state_dict(ckpt, strict=False) # Required since we only provide LoRA weights
-assert len(missing) == 0
-
 cogvideox = CogVideoXMotionAdapter_5B_TI2V_Large(
-    motion_extractor_ckpt_path="/path/to/motion_extractor/checkpoint",
-    vae_slicing=True, # reduces VRAM
-    vae_tiling=True, # reduces VRAM
+    motion_extractor_ckpt_path="/path/to/motion/extractor/checkpoint",
+    vae_slicing=True,  # reduces VRAM
+    vae_tiling=True,  # reduces VRAM
 )
 cogvideox.eval()
 cogvideox.requires_grad_(False)
 cogvideox.to(device)
-
+cogvideox.load_state_dict(
+  torch.load("/path/to/finetuned/cogvideox/checkpoint"), 
+  strict=False
+)
 ```
-Afterwards you can use the model's `sample` function by providing a batch of driving videos from which motion will be extracted from, and corresponding target images, and text prompts, onto which the extracted motion will be applied to:
+Afterwards you can use the model's `sample` function for generating new videos by transferring motion from `motion_videos` to `images`. Since CogVideoX is a text-to-video model at its core, we recommend to additionally provide describing `prompts` alongside the target images for better generation results:
 ```
-gen_videos = cogvideox.sample(
+generated_videos = cogvideox.sample(
     motion_videos=driving_videos,
     images=target_images,
-    prompts=target_prompts,
+    prompts=target_text_prompts,
 )
 ```
-Please have a look in the code for the other parameters this function provides (e.g., classifier-free guidance).
+The sample function also comes with some other arguments (e.g., classifier-free text guidance). Please have a look in the code for more details.
 
-### Motion Embedding Extraction
-If you want to use DisMo for extracting motion embeddings from videos for purposes other than motion transfer, you can also just load the pre-trained motion extractor on its own. Simply instantiate the module and load the checkpoint as follows:
+### Motion Extraction
+The motion extractor being used internally during motion transfer can also be used as a standalone model to extract a stream of abstract motion embeddings from input videos. This might useful for analysis purposes or other downstream tasks. You can load our pre-trained motion extractor as follows:
 ```
 from dismo.model import MotionExtractor_Large
+
 motion_extractor = MotionExtractor_Large()
-motion_extractor.load_state_dict(
-    torch.load("/path/to/motion_extractor/checkpoint")
-)
 motion_extractor.eval()
 motion_extractor.requires_grad_(False)
 motion_extractor.to(device)
+motion_extractor.load_state_dict(
+    torch.load("/path/to/motion/extractor/checkpoint")
+)
 ```
 You may then use the module's `forward_sliding` function to extract motion embeddings from arbitrarily long videos:
 ```
@@ -78,7 +78,7 @@ Note that the resulting motion embeddings have a temporal length of `num_frames 
 
 
 ## 🔥 Training
-You can also train DisMo yourself using your own video dataset.
+If you want to train DisMo yourself, we provide a training script that is suitable for multi-gpu training.
 
 **Data Preparation**
 DisMo only needs unlabelled videos for training. This repository takes advantage of the [webdataset](https://github.com/webdataset/webdataset) library and format for efficient and scalable data loading. Please refer to their page for further instructions on how to shard your video dataset accordingly.
