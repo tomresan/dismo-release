@@ -339,8 +339,7 @@
             <b>action</b> or <b>identity</b>. For motion transfer, desirable neighbors share the same
             <i>action</i> but differ in identity. <b>DisMo</b> exhibits exactly this behavior: it retrieves videos
             with the same motion performed by different actors, while standard video representation learning baselines
-            mostly retrieve the same identity performing different actions, indicating that they are biased toward
-            appearance rather than motion.
+            mostly retrieve the same identity performing different actions.
           </p>
 
           <figure class="metric-figure">
@@ -370,7 +369,7 @@
           <p class="has-text-justified" style="font-size: 16px; margin-bottom: 1.5rem;">
             Beyond motion transfer, we demonstrate that <b>DisMo</b>'s motion embeddings are genuinely <b>semantic</b>.
             In a zero-shot action classification setup, where no task-specific fine-tuning is performed, DisMo
-            consistently outperforms strong video representation baselines such as V-JEPA on multiple benchmarks.
+            outperforms video representation baselines on multiple datasets.
             This shows that DisMo captures <b>high-level temporal dynamics</b> that are directly useful for downstream
             motion understanding tasks.
           </p>
