@@ -194,29 +194,9 @@
 
 
 
-  <!-- Method -->
-  <section class="section hero">
-    <div class="container is-max-desktop">
-      <div class="columns is-centered has-text-centered">
-        <div class="column is-four-fifths">
-          <h2 class="title is-3">Method</h2>
-          <div class="content has-text-justified">
-            <img src="static/images/architecture.svg" alt="" style="width: 100%; height: auto; margin-bottom: 20px;">
-            <p class="has-text-justified" style="font-size: 16px;">
-              <b>(a)</b> Our motion extractor receives augmented video frames and outputs a motion embedding for each, which represents the higher-level temporal dynamics at that time. These are then individually passed to a frame generator, alongside the corresponding source frame, from which it learns to reconstruct a frame at a future timestep. 
-              <b>(b)</b> To transfer a sequence of motion embeddings onto another target image, we can directly utilize the trained frame generator autoregressively as a low-cost option.
-              <b>(c)</b> For high-quality motion transfer, we adapt pre-trained off-the-shelf video generation models. A motion sequence is first embedded using a mapping network, before being introduced to the frozen video model. The processed motion sequence is arranged such that each token at a specific timestep in the pre-trained backbone receives conditioning only from the temporally corresponding motion embedding.
-            </p>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-  <!-- End Method -->
-
 
   <!-- Video Results -->
-  <section class="section hero is-light" id="results">
+  <section class="section hero" id="results">
     <div class="container is-max-desktop">
       <div class="columns is-centered has-text-centered">
         <div class="column is-four-fifths">
@@ -287,6 +267,29 @@
     </div>
   </section>
   <!-- End Video Results -->
+
+
+
+
+  <!-- Method -->
+  <section class="section hero is-light">
+    <div class="container is-max-desktop">
+      <div class="columns is-centered has-text-centered">
+        <div class="column is-four-fifths">
+          <h2 class="title is-3">Method</h2>
+          <div class="content has-text-justified">
+            <img src="static/images/architecture.svg" alt="" style="width: 100%; height: auto; margin-bottom: 20px;">
+            <p class="has-text-justified" style="font-size: 16px;">
+              <b>(a)</b> Our motion extractor receives augmented video frames and outputs a motion embedding for each, which represents the higher-level temporal dynamics at that time. These are then individually passed to a frame generator, alongside the corresponding source frame, from which it learns to reconstruct a frame at a future timestep. 
+              <b>(b)</b> To transfer a sequence of motion embeddings onto another target image, we can directly utilize the trained frame generator autoregressively as a low-cost option.
+              <b>(c)</b> For high-quality motion transfer, we adapt pre-trained off-the-shelf video generation models. A motion sequence is first embedded using a mapping network, before being introduced to the frozen video model. The processed motion sequence is arranged such that each token at a specific timestep in the pre-trained backbone receives conditioning only from the temporally corresponding motion embedding.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+  <!-- End Method -->
 
 
 
