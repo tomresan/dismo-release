@@ -32,7 +32,7 @@ def run(motion_video_path, source_image_path, prompt="", output_dir="output/"):
         progress_bar=True,
         n_steps=100,
         # text_guidance_scale=10.0,
-        generator=torch.Generator('cuda').manual_seed(17), # 13 is good
+        generator=torch.Generator('cuda').manual_seed(18), # 13 is good
         # negative_prompt="arms, hands, worst quality, inconsistent motion, blurry, jittery, distorted, ad pop-up, news pop-up",
     ).cpu()
 
