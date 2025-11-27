@@ -182,3 +182,22 @@ body {
 .column-title.small {
   font-size: 1rem; /* Adjust font size */
 }
+
+.metric-figure {
+  margin: 0 auto 2rem auto;
+  text-align: center;
+}
+
+.metric-figure img {
+  width: 100%;
+  max-width: 900px;
+  height: auto;
+  display: block;
+  margin: 0 auto;
+}
+
+.metric-figure figcaption {
+  font-size: 13px;
+  color: #666;
+  margin-top: 0.75rem;
+}

@@ -44,10 +44,10 @@ def resized_center_crop(x: torch.Tensor, size: int | list) -> torch.Tensor:
     return apply_geometric_transformations(
         frames=x,
         size=size, 
-        # min_aspect_ratio=ratio,
-        # max_aspect_ratio=ratio,
-        min_aspect_ratio=1,
-        max_aspect_ratio=1,
+        min_aspect_ratio=ratio,
+        max_aspect_ratio=ratio,
+        # min_aspect_ratio=1,
+        # max_aspect_ratio=1,
     )
 
 

@@ -32,13 +32,13 @@ def run(motion_video_path, source_image_path, prompt="", output_dir="output/"):
         progress_bar=True,
         n_steps=100,
         # text_guidance_scale=10.0,
-        generator=torch.Generator('cuda').manual_seed(16), # 13 is good
+        generator=torch.Generator('cuda').manual_seed(17), # 13 is good
         # negative_prompt="arms, hands, worst quality, inconsistent motion, blurry, jittery, distorted, ad pop-up, news pop-up",
     ).cpu()
 
     video_grid = torch.cat(list(gen_videos.unbind(0)), dim=-2)
     write_video(
-        Path(output_dir).joinpath(f'{Path(motion_video_path).stem}' + '_to_' + f'{Path(source_image_path).stem}.mp4'), 
+        Path(output_dir).joinpath(f'{Path(motion_video_path).stem}' + '__to__' + f'{Path(source_image_path).stem}.mp4'), 
         video_grid, 
         fps=8, 
         options={
