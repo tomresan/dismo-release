@@ -163,7 +163,7 @@
             <div class="column is-four-fifths">
               <div class="content has-text-justified">
                 <p style="margin-bottom: 20px; margin-top: 10px;">
-                  <span style="font-weight: bold">TL;DR:</span> Our Flow Poke Transformer (FPT) directly models the uncertainty of the world by predicting distributions of how objects (<span style="color:#ff7f0e">×</span>) may move conditioned on some  input movements (pokes, →). We see that whether the hand (below paw) or the paw (above hand) moves downwards directly influences the other's movement. Left: the paw pushing the hand down, will force the hand downwards, resulting in a unimodal distribution. Right: the hand moving down results in two modes, the paw following along or staying put.
+                  <span style="font-weight: bold">TL;DR:</span> We present <b>DisMo</b>, a paradigm that learns a semantic motion representation space from videos that is disentangled from static content information such as appearance, structure, viewing angle and even object category. We leverage this invariance and condition off-the-shelf video models on extracted motion embeddings. This setup achieves state-of-the-art performance on open-world motion transfer with a high degree of transferability in cross-category and -viewpoint settings. Beyond that, DisMo's learned representations are suitable for downstream tasks such as zero-shot action classification.
                 </p>
 
               </div>
@@ -183,7 +183,7 @@
           <h2 class="title is-3">Abstract</h2>
           <div class="content has-text-justified">
             <p class="has-text-justified" style="font-size: 16px;">
-              Recent advances in text-to-video (T2V) and image-to-video (I2V) models, have enabled the creation of visually compelling and dynamic videos from simple textual descriptions or initial frames. However, these models often fail to provide an explicit representation of motion separate from content, limiting their applicability for content creators. To address this gap, we propose <i><b>DisMo</b></i>, a novel paradigm for learning abstract motion representations directly from raw video data via an image-space reconstruction objective. Our representation is generic and independent of static information such as appearance, object identity, or pose. This enables open-world motion transfer, allowing motion to be transferred across semantically unrelated entities without requiring object correspondences, even between vastly different categories. Unlike prior methods, which trade off motion fidelity and prompt adherence, are overfitting to source structure or drifting from the described action, our approach disentangles motion semantics from appearance, enabling accurate transfer and faithful conditioning. Furthermore, our motion representation can be combined with any existing video generator via lightweight adapters, allowing us to effortlessly benefit from future advancements in video models. We demonstrate the effectiveness of our method through a diverse set of motion transfer tasks. Finally, we show that the learned representations are well-suited for downstream motion understanding tasks, consistently outperforming state-of-the-art video representation models such as V-JEPA in zero-shot action classification on benchmarks including Something-Something v2 and Jester.
+              Recent advances in text-to-video (T2V) and image-to-video (I2V) models, have enabled the creation of visually compelling and dynamic videos from simple textual descriptions or initial frames. However, these models often fail to provide an explicit representation of motion separate from content, limiting their applicability for content creators. To address this gap, we propose <i><b>DisMo</b></i>, a novel paradigm for learning abstract motion representations directly from raw video data via an image-space reconstruction objective. Our representation is generic and independent of static information such as appearance, object identity, or pose. This enables open-world motion transfer, allowing motion to be transferred across semantically unrelated entities without requiring object correspondences, even between vastly different categories. <br> Unlike prior methods, which trade off motion fidelity and prompt adherence, are overfitting to source structure or drifting from the described action, our approach disentangles motion semantics from appearance, enabling accurate transfer and faithful conditioning. Furthermore, our motion representation can be combined with any existing video generator via lightweight adapters, allowing us to effortlessly benefit from future advancements in video models. We demonstrate the effectiveness of our method through a diverse set of motion transfer tasks. Finally, we show that the learned representations are well-suited for downstream motion understanding tasks, consistently outperforming state-of-the-art video representation models such as V-JEPA in zero-shot action classification on benchmarks including Something-Something v2 and Jester.
             </p>
           </div>
         </div>
@@ -194,6 +194,7 @@
 
 
 
+  <!-- Method -->
   <section class="section hero">
     <div class="container is-max-desktop">
       <div class="columns is-centered has-text-centered">
@@ -202,73 +203,192 @@
           <div class="content has-text-justified">
             <img src="static/images/architecture.svg" alt="" style="width: 100%; height: auto; margin-bottom: 20px;">
             <p class="has-text-justified" style="font-size: 16px;">
-              \textbf{(a)} During training, our motion extractor $\motionextractor$ receives augmented frames from a video $\video$, along with additional motion query tokens $\mathbf{Q}$. These are then individually passed to the frame generator $\framegenerator$, alongside the corresponding source frame \(\videoframe_t\), from which it learns to reconstruct a frame at a future timestep $\timedestination$. 
-    \textbf{(b)} To transfer a motion sequence $\motionsequence$ onto another target image, we can directly utilize the trained Frame Generator $\mathcal{F}_{\psi}$ autoregressively as a low-cost option.
-    \textbf{(c)} For high-quality motion transfer, we adapt pre-trained off-the-shelf video generation models. A motion sequence is first embedded using a mapping network, before being introduced to the frozen video model. The processed motion sequence is arranged such that each token at timestep \(t\) in the pre-trained backbone receives conditioning only from the temporally corresponding motion embedding $\motion_t$.
+              <b>(a)</b> Our motion extractor receives augmented video frames and outputs a motion embedding for each, which represents the higher-level temporal dynamics at that time. These are then individually passed to a frame generator, alongside the corresponding source frame, from which it learns to reconstruct a frame at a future timestep. 
+              <b>(b)</b> To transfer a sequence of motion embeddings onto another target image, we can directly utilize the trained frame generator autoregressively as a low-cost option.
+              <b>(c)</b> For high-quality motion transfer, we adapt pre-trained off-the-shelf video generation models. A motion sequence is first embedded using a mapping network, before being introduced to the frozen video model. The processed motion sequence is arranged such that each token at a specific timestep in the pre-trained backbone receives conditioning only from the temporally corresponding motion embedding.
             </p>
           </div>
         </div>
       </div>
     </div>
   </section>
+  <!-- End Method -->
 
 
-  <section class="section hero is-light">
+  <!-- Video Results -->
+  <section class="section hero is-light" id="results">
     <div class="container is-max-desktop">
       <div class="columns is-centered has-text-centered">
-        <div class="column">
-          <h2 class="title is-3">Comparison and Capabilities</h2>
-          <div class="content">
-            <h3 class="title">Face Motion Generation</h3>
-            <div class="columns is-centered has-text-centered">
-              <div class="column is-four-fifths">
-                <img src="static/images/face_motion.png" alt="" style="width: 100%; height: auto;">
-              </div>
-            </div>
-            <p class="has-text-justified" style="font-size: 16px;">
-              We show fine-grained zero-shot poking results on faces and compare against InstantDrag, which was trained specifically for this task. We further visualize the predicted motion as warps using InstantDrag's face warping model. The qualitative results show that our model tends to predict more accurate and localized motion.
-            </p>
-            <h3 class="title">Moving Part Segmentation</h3>
-            <div class="columns is-centered has-text-centered">
-              <div class="column is-four-fifths">
-                <img src="static/images/openset_mov_segment.png" alt="" style="width: 100%; height: auto;">
-              </div>
-            </div>
-            <p class="has-text-justified" style="font-size: 16px;">
-              We perform moving part segmentation with our method by thresholding the KL divergence between the pointwise unconditional motion distribution and the pointwise motion distribution conditioned on a specific poke. Our method shows strong moving part segmentation performance in generic open-set cases.
-            </p>
-            <div class="columns is-centered has-text-centered">
-              <div class="column is-four-fifths">
-                <img src="static/images/dragapart.png" alt="" style="width: 100%; height: auto;">
-              </div>
-            </div>
-            <p class="has-text-justified" style="font-size: 16px;">
-              We directly replicate Fig. 7 from DragAPart [21] with our method. Our method provides spatially continuous predictions and makes fewer critical mistakes like segmenting the furniture body with the drawer (top right). Quantitatively, we find that our method, especially when finetuned in-domain, outperforms DragAPart, which introduced this benchmark.
-            </p>
-            <h3 class="title">Articulated Motion Estimation</h3>
-            <div class="columns is-centered has-text-centered">
-              <div class="column is-four-fifths">
-                <img src="static/images/dragamove.png" alt="" style="width: 100%; height: auto;">
-              </div>
-            </div>
-            <p class="has-text-justified" style="font-size: 16px;">
-              We compare on the Drag-A-Move dataset with Motion-I2V, DragAPart, and PuppetMaster. Our (finetuned?) model is qualitatively more capable of capturing complex conditioning with multiple different pokes than DAP and PM in this setup. Motion-I2V often fails to accurately follow the conditioning locally.
-            </p>
-            <h3 class="title">Unconditional Sampling</h3>
-            <div class="columns is-centered has-text-centered">
-              <div class="column is-four-fifths">
-                <img src="static/images/uncond.png" alt="" style="width: 100%; height: auto;">
-              </div>
-            </div>
-            <p class="has-text-justified" style="font-size: 16px;">
-              By sampling autoregressively without an initial poke, we can sample from the joint distribution of movement of the whole scene. We show such samples of generated flow without prior motion conditioning on pokes. Our model can generate a wide variety of realistic motions.
+        <div class="column is-four-fifths">
+          <h2 class="title is-3">Motion Transfer Examples</h2>
+          <p class="has-text-justified" style="font-size: 16px; margin-bottom: 2rem;">
+            We present qualitative results of <b>open-world motion transfer</b>. Each video shows the
+            <b>source motion</b> on the left and one or more <b>generated targets</b> on the right.
+          </p>
+        </div>
+      </div>
 
-            </p>
-          </div>
+      <!-- Result 1 -->
+      <div class="columns is-centered">
+        <div class="column is-four-fifths has-text-centered">
+          <h3 class="title is-5">Cross-category motion transfer</h3>
+          <video class="video-result" autoplay muted loop playsinline controls>
+            <source src="static/videos/transfer_01.mp4" type="video/mp4">
+            Your browser does not support the video tag.
+          </video>
+          <p class="has-text-grey" style="margin-top: 0.75rem;">
+            Motion from a human subject transferred to a non-human target while preserving motion semantics.
+          </p>
+        </div>
+      </div>
+
+      <!-- Result 2 -->
+      <div class="columns is-centered">
+        <div class="column is-four-fifths has-text-centered">
+          <h3 class="title is-5">Cross-viewpoint motion transfer</h3>
+          <video class="video-result" autoplay muted loop playsinline controls>
+            <source src="static/videos/transfer_02.mp4" type="video/mp4">
+            Your browser does not support the video tag.
+          </video>
+          <p class="has-text-grey" style="margin-top: 0.75rem;">
+            Source motion captured from an oblique viewpoint, transferred to a front-facing target.
+          </p>
+        </div>
+      </div>
+
+      <!-- Result 3 -->
+      <div class="columns is-centered">
+        <div class="column is-four-fifths has-text-centered">
+          <h3 class="title is-5">Appearance-invariant transfer</h3>
+          <video class="video-result" autoplay muted loop playsinline controls>
+            <source src="static/videos/transfer_03.mp4" type="video/mp4">
+            Your browser does not support the video tag.
+          </video>
+          <p class="has-text-grey" style="margin-top: 0.75rem;">
+            Different targets share the same motion while retaining their individual appearance and structure.
+          </p>
+        </div>
+      </div>
+
+      <!-- Result 4 -->
+      <div class="columns is-centered">
+        <div class="column is-four-fifths has-text-centered">
+          <h3 class="title is-5">Multi-target motion transfer</h3>
+          <video class="video-result" autoplay muted loop playsinline controls>
+            <source src="static/videos/transfer_04.mp4" type="video/mp4">
+            Your browser does not support the video tag.
+          </video>
+          <p class="has-text-grey" style="margin-top: 0.75rem;">
+            A single source motion is transferred simultaneously to multiple targets with different appearances.
+          </p>
+        </div>
+      </div>
+
+    </div>
+  </section>
+  <!-- End Video Results -->
+
+
+
+
+  <!-- Quantitative Motion Transfer Evaluation -->
+  <section class="section hero" id="quantitative">
+    <div class="container is-max-desktop">
+      <div class="columns is-centered has-text-centered">
+        <div class="column is-four-fifths">
+          <h2 class="title is-3">Quantitative Motion Transfer Evaluation</h2>
+          <p class="has-text-justified" style="font-size: 16px; margin-bottom: 1.5rem;">
+            We quantitatively evaluate <b>open-world motion transfer</b> using both automatic metrics and human studies.
+            While prior methods exhibit a clear trade-off between <b>motion fidelity</b> and <b>prompt adherence</b>,
+            <b>DisMo</b> achieves <i>state-of-the-art performance</i> on both simultaneously, breaking the usual
+            compromise. Competing approaches rely heavily on structural cues and their frame-wise changes, whereas
+            DisMo abstracts motion into <b>semantic, disentangled motion embeddings</b> that are independent of
+            appearance, structure and object category.
+          </p>
+
+          <figure class="metric-figure">
+            <img src="static/images/motion_transfer_eval_automated.svg"
+                 alt="Quantitative motion transfer evaluation with automatic and human metrics where DisMo outperforms all baselines without a trade-off between motion fidelity and prompt adherence.">
+            <figcaption>
+              <b>Figure:</b> Automatic and human evaluation of motion transfer. Unlike existing methods, which trade
+              off motion fidelity and prompt adherence, <b>DisMo</b> is best in both metrics without sacrificing either.
+            </figcaption>
+          </figure>
         </div>
       </div>
     </div>
   </section>
+  <!-- End Quantitative Motion Transfer Evaluation -->
+
+
+
+
+
+  <!-- Disentangled Motion Embeddings -->
+  <section class="section hero is-light" id="disentanglement">
+    <div class="container is-max-desktop">
+      <div class="columns is-centered has-text-centered">
+        <div class="column is-four-fifths">
+          <h2 class="title is-3">Disentangled Motion Embeddings</h2>
+          <p class="has-text-justified" style="font-size: 16px; margin-bottom: 1.5rem;">
+            We analyze disentanglement using a <b>k-NN retrieval</b> setup where queries target either
+            <b>action</b> or <b>identity</b>. For motion transfer, desirable neighbors share the same
+            <i>action</i> but differ in identity. <b>DisMo</b> exhibits exactly this behavior: it retrieves videos
+            with the same motion performed by different actors, while standard video representation learning baselines
+            mostly retrieve the same identity performing different actions, indicating that they are biased toward
+            appearance rather than motion.
+          </p>
+
+          <figure class="metric-figure">
+            <img src="static/images/disentanglement_eval.svg"
+                 alt="k-NN retrieval evaluation showing that DisMo retrieves clips with the same action and different identities, while baselines focus on identity.">
+            <figcaption>
+              <b>Figure:</b> k-NN retrieval analysis. <b>DisMo</b> focuses on motion semantics (same action, different
+              identity), whereas generic video representation baselines primarily capture identity and appearance.
+            </figcaption>
+          </figure>
+        </div>
+      </div>
+    </div>
+  </section>
+  <!-- End Disentangled Motion Embeddings -->
+
+
+
+
+
+  <!-- Zero-Shot Action Classification -->
+  <section class="section hero" id="zeroshot">
+    <div class="container is-max-desktop">
+      <div class="columns is-centered has-text-centered">
+        <div class="column is-four-fifths">
+          <h2 class="title is-3">Zero-Shot Action Classification</h2>
+          <p class="has-text-justified" style="font-size: 16px; margin-bottom: 1.5rem;">
+            Beyond motion transfer, we demonstrate that <b>DisMo</b>'s motion embeddings are genuinely <b>semantic</b>.
+            In a zero-shot action classification setup, where no task-specific fine-tuning is performed, DisMo
+            consistently outperforms strong video representation baselines such as V-JEPA on multiple benchmarks.
+            This shows that DisMo captures <b>high-level temporal dynamics</b> that are directly useful for downstream
+            motion understanding tasks.
+          </p>
+
+          <figure class="metric-figure">
+            <img src="static/images/knn_action_classification_eval.svg"
+                 alt="Zero-shot action classification results showing DisMo outperforming other video representation baselines.">
+            <figcaption>
+              <b>Figure:</b> Zero-shot action classification on benchmarks such as Something-Something v2 and Jester.
+              <b>DisMo</b> achieves superior performance, indicating that its motion representations encode
+              meaningful action semantics that can be leveraged beyond motion transfer.
+            </figcaption>
+          </figure>
+        </div>
+      </div>
+    </div>
+  </section>
+  <!-- End Zero-Shot Action Classification -->
+
+
+
+
 
   <!--BibTex citation -->
   <section class="section" id="BibTeX">

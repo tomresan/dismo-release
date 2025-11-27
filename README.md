@@ -25,7 +25,7 @@
 
 
 ## 📋 Overview
-We present <b>DisMo</b>, a paradigm that learns a semantic motion representation space from videos. These representations are disentangled from static content information such as appearance, structure, viewing angle and even object category, which makes them particularly suitable for attaching them onto novel content. We take advantage of this and condition off-the-shelf video models on our learned motion representations. Our semantic motion space paired with high-fidelity video models enable the task of open-world motion transfer, where we achieves state-of-the-art performance compared to previous methods. Beyond that, DisMo's learned representations are also suitable for downstream applications such as zero-shot action classification.
+We present <b>DisMo</b>, a paradigm that learns a semantic motion representation space from videos that is disentangled from static content information such as appearance, structure, viewing angle and even object category. We leverage this invariance and condition off-the-shelf video models on extracted motion embeddings. This setup achieves state-of-the-art performance on open-world motion transfer with a high degree of transferability in cross-category and -viewpoint settings. Beyond that, DisMo's learned representations are suitable for downstream tasks such as zero-shot action classification.
 
 ## 🛠️ Setup
 We have tested our setup on `Ubuntu 22.04.4 LTS`.
@@ -59,7 +59,7 @@ conda install ffmpeg
 ```
 
 ## 🚀 Usage
-To use DisMo for motion transfer, we provide the code and weights for a CogVideoX-5B video model variant, which was adapted to be conditioned on motion embeddings and text prompts. You can load the default model variant as follows:
+To use DisMo for motion transfer, we provide the code and LoRA weights of an adapted CogVideoX-5B video model, which is conditioned on motion embeddings and text prompts. You can load the default model variant as follows:
 ```
 from dismo.video_model_finetuning.cogvideox import CogVideoXMotionAdapter_5B_TI2V_Large
 
@@ -72,8 +72,8 @@ cogvideox.eval()
 cogvideox.requires_grad_(False)
 cogvideox.to(device)
 cogvideox.load_state_dict(
-  torch.load("/path/to/finetuned/cogvideox/checkpoint"), 
-  strict=False
+    torch.load("/path/to/finetuned/cogvideox/checkpoint"), 
+    strict=False
 )
 ```
 Afterwards you can use the model's `sample` function for generating new videos by transferring motion from `motion_videos` to `images`. Since CogVideoX is a text-to-video model at its core, we recommend to additionally provide describing `prompts` alongside the target images for better generation results:
@@ -84,7 +84,7 @@ generated_videos = cogvideox.sample(
     prompts=target_text_prompts,
 )
 ```
-The sample function also comes with some other arguments (e.g., classifier-free text guidance). Please have a look in the code for more details.
+The sample function comes with some other arguments (e.g., classifier-free text guidance). Please have a look in the code for more details.
 
 ### Motion Extraction
 The motion extractor being used internally during motion transfer can also be used as a standalone model to extract a stream of abstract motion embeddings from input videos. This might useful for analysis purposes or other downstream tasks. You can load our pre-trained motion extractor as follows:
@@ -132,7 +132,7 @@ Remove `--compile True` for significantly faster startup time at the cost of slo
 
 
 ## 🤖 Models
-We release the weights of our pre-trained <b>motion extractor</b> and the LoRA weight of a <b>fine-tuned CogVideoX-5B-I2V</b> variant via huggingface at https://huggingface.co/CompVis (under the [CC BY-NC 4.0](https://creativecommons.org/licenses/by-nc/4.0/deed.en) license). We will potentially release other model variants in the future, e.g., more recent and powerful video models, from which DisMo might benefit from. Due to legal concerns, we do not release the weights of the frame generator that was trained alongside the motion extractor.
+We release the weights of our pre-trained motion extractor and LoRA weight of an adapted CogVideoX-5B-I2V model via huggingface at https://huggingface.co/CompVis (under the [CC BY-NC 4.0](https://creativecommons.org/licenses/by-nc/4.0/deed.en) license). We will potentially release other model variants in the future, e.g., more recent and powerful video models, from which DisMo might benefit from. Due to legal concerns, we do not release the weights of the frame generator that was trained alongside the motion extractor.
 
 ## Code Credit
 - Some code is adapted from [flow-poke-transformer](https://github.com/CompVis/flow-poke-transformer) by Stefan A. Baumann et al. (LMU), which in turn adapts some code from  [k-diffusion](https://github.com/crowsonkb/k-diffusion) by Katherine Crowson (MIT)

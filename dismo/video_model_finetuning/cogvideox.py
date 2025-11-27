@@ -44,10 +44,10 @@ def resized_center_crop(x: torch.Tensor, size: int | list) -> torch.Tensor:
     return apply_geometric_transformations(
         frames=x,
         size=size, 
-        min_aspect_ratio=ratio,
-        max_aspect_ratio=ratio,
-        # min_aspect_ratio=1,
-        # max_aspect_ratio=1, 
+        # min_aspect_ratio=ratio,
+        # max_aspect_ratio=ratio,
+        min_aspect_ratio=1,
+        max_aspect_ratio=1, 
     )
 
 
@@ -127,7 +127,7 @@ class CogVideoXMotionAdapter(nn.Module):
         self.text_encoder = T5EncoderModel.from_pretrained(
             model_path,
             subfolder="text_encoder",
-            dtype=dtype,
+            torch_dtype=dtype,
             token=os.environ.get("HF_TOKEN")
         )
 
@@ -136,7 +136,7 @@ class CogVideoXMotionAdapter(nn.Module):
             self.transformer = CogVideoXTransformer3DModel.from_pretrained(
                 model_path,
                 subfolder="transformer",
-                dtype=dtype,
+                torch_dtype=dtype,
                 token=os.environ.get("HF_TOKEN")
             )
         else:
@@ -144,7 +144,7 @@ class CogVideoXMotionAdapter(nn.Module):
                 model_path,
                 subfolder="transformer",
                 quantization_config=nf4_config,
-                dtype=dtype,
+                torch_dtype=dtype,
                 token=os.environ.get("HF_TOKEN")
             )
 
@@ -152,7 +152,7 @@ class CogVideoXMotionAdapter(nn.Module):
         self.vae = AutoencoderKLCogVideoX.from_pretrained(
             model_path,
             subfolder="vae",
-            dtype=dtype,
+            torch_dtype=dtype,
             token=os.environ.get("HF_TOKEN")
         )
 

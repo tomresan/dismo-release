@@ -174,12 +174,13 @@ cython_debug/
 .pypirc
 
 # Training outputs
-output/
+output*
 
-outputs/
-outputs2/
+
 map_cogvideo_checkpoint.py
 map_dismo_checkpoint.py
 test_dataloading.py
 test_motion_transfer.py
 .vscode/
+videos/
+images/
