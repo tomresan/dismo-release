@@ -181,6 +181,7 @@ map_cogvideo_checkpoint.py
 map_dismo_checkpoint.py
 test_dataloading.py
 test_motion_transfer.py
+stitch_frames.py
 .vscode/
 driving_videos/
 source_images/
