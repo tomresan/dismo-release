@@ -1,0 +1,12 @@
+einops
+jaxtyping
+transformers
+diffusers
+peft
+sentencepiece
+bitsandbytes
+protobuf
+webdataset
+torchcodec==0.5
+fire
+wandb

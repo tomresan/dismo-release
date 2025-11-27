@@ -255,8 +255,8 @@ class FrameGenerator(nn.Module):
             ff_expand=3,
         )
 
-        self.token_merge = TokenMerge(4 * patch_size[0] * patch_size[1], width, patch_size=patch_size)
-        self.token_split = TokenSplit(width, 4 * patch_size[0] * patch_size[1], patch_size=patch_size)
+        self.token_merge = TokenMerge(4, width, patch_size=patch_size)
+        self.token_split = TokenSplit(width, 4, patch_size=patch_size)
 
         self.ae = TinyAutoencoderKL()
 
@@ -489,7 +489,7 @@ class DisMo(nn.Module):
             'motion_std_batch': motion_embeddings.std(dim=(0, 2)).mean(),
             'motion_std_video': motion_embeddings.std(dim=2).mean(),
         }
-        return loss, metrics
+        return loss.mean(), metrics
 
 
 DisMo_Large = partial(

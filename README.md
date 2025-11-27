@@ -28,8 +28,35 @@
 We present <b>DisMo</b>, a paradigm that learns a semantic motion representation space from videos. These representations are disentangled from static content information such as appearance, structure, viewing angle and even object category, which makes them particularly suitable for attaching them onto novel content. We take advantage of this and condition off-the-shelf video models on our learned motion representations. Our semantic motion space paired with high-fidelity video models enable the task of open-world motion transfer, where we achieves state-of-the-art performance compared to previous methods. Beyond that, DisMo's learned representations are also suitable for downstream applications such as zero-shot action classification.
 
 ## 🛠️ Setup
+We have tested our setup on `Ubuntu 22.04.4 LTS`.
 
-TODO
+First, clone the repository into your desired location:
+```
+git clone git@github.com:CompVis/dismo.git
+cd dismo
+```
+
+We recommend using a package manager, <i>e.g.,</i> [Miniconda](https://www.anaconda.com/docs/getting-started/miniconda/install). When installed, you can create and activate a new environment:
+```
+conda create -n dismo python=3.11
+conda activate dismo
+```
+
+Afterwards install PyTorch. We have tested this setup with `PyTorch 2.7.1` and `CUDA 12.6`:
+```
+pip install torch==2.7.1 torchvision==0.22.1 --index-url https://download.pytorch.org/whl/cu126
+```
+If you need to install an alternative version, <i>e.g.</i> due to incompatible CUDA versions, see the [official instructions](https://pytorch.org/get-started/locally/).
+
+Finally, install all other packages:
+```
+pip install -r requirements.txt
+```
+
+<i>(Optional)</i> We use the [torchcodec](https://github.com/meta-pytorch/torchcodec) package for data loading, which expects `ffmpeg` to be installed. If you plan to train DisMo yourself and you don't have a ffmpeg version installed yet, an easy way is to use `conda`:
+```
+conda install ffmpeg
+```
 
 ## 🚀 Usage
 To use DisMo for motion transfer, we provide the code and weights for a CogVideoX-5B video model variant, which was adapted to be conditioned on motion embeddings and text prompts. You can load the default model variant as follows:
@@ -105,7 +132,7 @@ Remove `--compile True` for significantly faster startup time at the cost of slo
 
 
 ## 🤖 Models
-We release the weights of our pre-trained motion extractor and the LoRA weight of a fine-tuned CogVideoX-5B-I2V variant via huggingface at https://huggingface.co/CompVis (under the [CC BY-NC 4.0](https://creativecommons.org/licenses/by-nc/4.0/deed.en) license), and will potentially release further variants (scaled up or with other improvements). Due to legal concerns, we do not release the weights of the frame generator that was trained alongside the motion extractor.
+We release the weights of our pre-trained <b>motion extractor</b> and the LoRA weight of a <b>fine-tuned CogVideoX-5B-I2V</b> variant via huggingface at https://huggingface.co/CompVis (under the [CC BY-NC 4.0](https://creativecommons.org/licenses/by-nc/4.0/deed.en) license). We will potentially release other model variants in the future, e.g., more recent and powerful video models, from which DisMo might benefit from. Due to legal concerns, we do not release the weights of the frame generator that was trained alongside the motion extractor.
 
 ## Code Credit
 - Some code is adapted from [flow-poke-transformer](https://github.com/CompVis/flow-poke-transformer) by Stefan A. Baumann et al. (LMU), which in turn adapts some code from  [k-diffusion](https://github.com/crowsonkb/k-diffusion) by Katherine Crowson (MIT)

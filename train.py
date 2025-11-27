@@ -15,7 +15,7 @@ import numpy as np
 from tqdm.auto import tqdm
 
 from dismo.model import DisMo, DisMo_Large
-from dismo.data import DismoVideoLoader
+from dismo.data import DismoVideoLoader, get_transform
 
 
 def endless_iter(iterable):
@@ -35,11 +35,11 @@ def train(
     # Data
     data_paths: str = "data",
     # Training
-    local_batch_size: int = 32,
+    local_batch_size: int = 4,
     lr: float = 5e-5,
     clip_grad_norm: float = 1.0,
     # Misc
-    compile: bool = False,
+    compile: bool = True,
     enable_wandb: bool = True,
 ):
     train_params = locals()
@@ -111,13 +111,59 @@ def train(
     # Important setup stuff
     # If you want to change anything about what you train, you'll likely want to do it here and add it as a parameter to train()
     model = DisMo_Large(compile=compile).to(device)
+
+    motion_transform = get_transform(
+        params_geometric=dict(
+            size=256,
+            max_aspect_ratio=1.333,
+            min_aspect_ratio=0.75,
+            random_crop=True,
+            scale=[0.25, 1.0],
+            aspect_ratio=[0.666, 1.5],
+            angle=[-30, 30],
+            shear=[0, 0],
+            remove_padding=True,
+        ),
+        params_photometric=dict(
+            brightness=[0.5, 1.5],
+            contrast=[0.5, 1.5],
+            saturation=[0.5, 1.5],
+        )
+    )
+
+    content_transform = get_transform(
+        params_geometric=dict(
+            size=256,
+            max_aspect_ratio=1.333,
+            min_aspect_ratio=0.75,
+            random_crop=True,
+            scale=[0.7, 1.0],
+            aspect_ratio=[1, 1],
+            angle=[0, 0],
+            shear=[0, 0],
+            remove_padding=True,
+        ),
+        params_photometric=dict(
+            brightness=[0.8, 1.2],
+            saturation=[0.8, 1.2],
+        )
+    )
+
     data = DismoVideoLoader(
-        data_paths=data_paths, 
-        batch_size=local_batch_size, 
-        shuffle=1000, 
+        data_paths=data_paths,
+        batch_size=local_batch_size,
+        num_workers=16,
+        clip_length=8,
+        fps=6,
+        clips_per_video=1,
+        clip_shift=True,
+        max_frame_distance=4,
+        delta_time_distribution={'type': 'gamma', 'concentration': 3.0, 'rate': 12.0},
+        motion_transform=motion_transform,
+        content_transform=content_transform,
+        shuffle=1000,
         shardshuffle=True,
         repeats=sys.maxsize,
-        num_workers=16,
         pin_memory=True,
         partial=False,
         seed=start_step+42,
@@ -153,7 +199,7 @@ def train(
     if rank == 0:
         logger.info("Starting training...")
     for i, batch in enumerate(
-        pbar := tqdm(endless_iter(data.make_loader()), desc="Training", initial=start_step, disable=rank != 0)
+        pbar := tqdm(iter(data), desc="Training", initial=start_step, disable=rank != 0)
     ):
         try:
             batch = { k: v.to(device, non_blocking=True) if torch.is_tensor(v) else v for k, v in batch.items() }

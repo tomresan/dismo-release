@@ -240,8 +240,12 @@ class Transformer(nn.Module):
         pos_cross: Float[torch.Tensor, "b l_cross 2"] | None = None,
         **kwargs,
     ) -> Float[torch.Tensor, "b l d_out"]:
+        B, *DIMS, D = x.shape
+        x = x.reshape(B, -1, D)
+        pos = pos.reshape(B, -1, pos.shape[-1])
         theta = self.pos_emb(pos).movedim(-2, -3)
         theta_cross = None if pos_cross is None else self.pos_emb(pos_cross).movedim(-2, -3)
         for layer in self.layers:
             x = layer(x, x_cross=x_cross, theta=theta, theta_cross=theta_cross, **kwargs)
+        x = x.reshape(B, *DIMS, D)
         return x

@@ -127,7 +127,7 @@ class CogVideoXMotionAdapter(nn.Module):
         self.text_encoder = T5EncoderModel.from_pretrained(
             model_path,
             subfolder="text_encoder",
-            torch_dtype=dtype,
+            dtype=dtype,
             token=os.environ.get("HF_TOKEN")
         )
 
@@ -136,7 +136,7 @@ class CogVideoXMotionAdapter(nn.Module):
             self.transformer = CogVideoXTransformer3DModel.from_pretrained(
                 model_path,
                 subfolder="transformer",
-                torch_dtype=dtype,
+                dtype=dtype,
                 token=os.environ.get("HF_TOKEN")
             )
         else:
@@ -144,7 +144,7 @@ class CogVideoXMotionAdapter(nn.Module):
                 model_path,
                 subfolder="transformer",
                 quantization_config=nf4_config,
-                torch_dtype=dtype,
+                dtype=dtype,
                 token=os.environ.get("HF_TOKEN")
             )
 
@@ -152,7 +152,7 @@ class CogVideoXMotionAdapter(nn.Module):
         self.vae = AutoencoderKLCogVideoX.from_pretrained(
             model_path,
             subfolder="vae",
-            torch_dtype=dtype,
+            dtype=dtype,
             token=os.environ.get("HF_TOKEN")
         )
 

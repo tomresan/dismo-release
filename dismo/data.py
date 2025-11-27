@@ -502,7 +502,7 @@ class DismoVideoLoader(BaseVideoLoader):
         clips_per_video: int | None = None,
         clip_shift: bool = False,
         fps: float | None = None,
-        max_delta_time_frames: int | None = None,
+        max_frame_distance: int | None = None,
         delta_time_distribution: dict | float | int | None = {'type': 'gamma', 'concentration': 3.0, 'rate': 12.0},
         motion_transform=None,
         content_transform=None,
@@ -513,7 +513,7 @@ class DismoVideoLoader(BaseVideoLoader):
         self.clips_per_video = clips_per_video
         self.clip_shift = clip_shift
         self.fps = fps
-        self.max_delta_time_frames = max_delta_time_frames
+        self.max_frame_distance = max_frame_distance
         dist_type = delta_time_distribution.pop('type', 'gamma')
         if dist_type == 'gamma':
             self.delta_time_distribution = torch.distributions.gamma.Gamma(**delta_time_distribution) # in seconds
@@ -545,18 +545,18 @@ class DismoVideoLoader(BaseVideoLoader):
                 motion_idcs = [offset + (i * stride) for i in range(self.clip_length)]
 
                 if self.delta_time_distribution is not None:
-                    distances = torch.arange((self.max_delta_time_frames * stride) + 1).float().div(video_fps)
+                    distances = torch.arange((self.max_frame_distance * stride) + 1).float().div(video_fps)
                     probs = self.delta_time_distribution.log_prob(distances).exp()
                     probs = probs.div(probs.sum()) # normalize
-                    target_offsets = torch.multinomial(probs, num_samples=self.clip_length - self.max_delta_time_frames, replacement=True).tolist()
-                    target_idcs = [motion_idcs[i] + target_offsets[i] for i in range(self.clip_length - self.max_delta_time_frames)]
+                    target_offsets = torch.multinomial(probs, num_samples=self.clip_length - self.max_frame_distance, replacement=True).tolist()
+                    target_idcs = [motion_idcs[i] + target_offsets[i] for i in range(self.clip_length - self.max_frame_distance)]
                 else:
                     distances = torch.tensor([stride / video_fps * self.n_delta_time_frames])
-                    target_offsets = [0] * (self.clip_length - self.max_delta_time_frames)
+                    target_offsets = [0] * (self.clip_length - self.max_frame_distance)
                     target_idcs = motion_idcs[self.n_delta_time_frames:]
 
                 motion_frames = video_decoder.get_frames_at(motion_idcs).data
-                source_frames = motion_frames[:(self.clip_length - self.max_delta_time_frames)]
+                source_frames = motion_frames[:(self.clip_length - self.max_frame_distance)]
                 target_frames = video_decoder.get_frames_at(target_idcs).data
 
                 motion_frames = self.motion_transform(motion_frames)
