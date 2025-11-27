@@ -33,7 +33,7 @@ def run(motion_video_path, source_image_path, prompt="", output_dir="output/"):
         n_steps=100,
         # text_guidance_scale=10.0,
         generator=torch.Generator('cuda').manual_seed(18), # 13 is good
-        # negative_prompt="arms, hands, worst quality, inconsistent motion, blurry, jittery, distorted, ad pop-up, news pop-up",
+        negative_prompt="incorrect number of fingers, irregular body parts, unproportionally long arms, incorrect anatomy, worst quality, inconsistent motion, blurry, jittery, distorted, ad pop-up, news pop-up",
     ).cpu()
 
     video_grid = torch.cat(list(gen_videos.unbind(0)), dim=-2)
