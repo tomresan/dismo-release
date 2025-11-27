@@ -47,7 +47,7 @@ def resized_center_crop(x: torch.Tensor, size: int | list) -> torch.Tensor:
         # min_aspect_ratio=ratio,
         # max_aspect_ratio=ratio,
         min_aspect_ratio=1,
-        max_aspect_ratio=1, 
+        max_aspect_ratio=1,
     )
 
 

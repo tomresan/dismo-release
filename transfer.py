@@ -1,3 +1,4 @@
+import argparse
 from pathlib import Path
 import torch
 import torch.nn.functional as F
@@ -5,8 +6,8 @@ from torchvision.io import read_image, write_video, write_png, read_video
 from dismo.video_model_finetuning.cogvideox import CogVideoXMotionAdapter_5B_TI2V_Large
 
 
-def run(motion_video_path, source_image_path, prompt=""):
-    original_video = read_video(motion_video_path)[0][::3][:25]
+def run(motion_video_path, source_image_path, prompt="", output_dir="output/"):
+    original_video = read_video(motion_video_path)[0][:25]
     if original_video.shape[0] < 25:
         return
     motion_video = original_video.float().div(255).mul(2).sub(1)
@@ -31,12 +32,31 @@ def run(motion_video_path, source_image_path, prompt=""):
         progress_bar=True,
         n_steps=100,
         # text_guidance_scale=10.0,
-        generator=torch.Generator('cuda').manual_seed(15), # 13 is good
+        generator=torch.Generator('cuda').manual_seed(16), # 13 is good
         # negative_prompt="arms, hands, worst quality, inconsistent motion, blurry, jittery, distorted, ad pop-up, news pop-up",
     ).cpu()
 
-    video_grid = torch.cat([original_video] + list(gen_videos.unbind(0)), dim=-2)
-    write_video('output/transfer.mp4', video_grid, fps=8, options={"crf": "18", "preset": "slow"})
+    video_grid = torch.cat(list(gen_videos.unbind(0)), dim=-2)
+    write_video(
+        Path(output_dir).joinpath(f'{Path(motion_video_path).stem}' + '_to_' + f'{Path(source_image_path).stem}.mp4'), 
+        video_grid, 
+        fps=8, 
+        options={
+            "crf": "0",          # Lossless quality (best possible)
+            "preset": "veryslow" # Highest-quality compression (slow)
+        },
+    )
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="Run motion transfer")
+    parser.add_argument("--motion_video", type=str, required=True, help="Path to the motion video")
+    parser.add_argument("--source_image", type=str, required=True, help="Path to the source image")
+    parser.add_argument("--prompt", type=str, required=True, help="Text prompt")
+    parser.add_argument("--output_dir", type=str, default="output", help="Text prompt")
+    args = parser.parse_args()
+    run(args.motion_video, args.source_image, args.prompt, args.output_dir)
+
 
 # run(
 #     'videos/dirtbike_short.mov',
@@ -56,10 +76,16 @@ def run(motion_video_path, source_image_path, prompt=""):
 #     prompt="The video shows a man that is performing a ballet in a GTA-style painting. The man is dancing on its toes, going down, jumping up again and rotating mid-air in an elegant and controlled fashion. high quality. realistic motion. dance."
 # )
 
-run(
-    'videos/ballet_short2.mov',
-    'images/fortnite_man.png',
-    prompt="The video shows a man in Fortnite style that is performing a ballet. The man is dancing on its toes, going down, jumping up again and rotating mid-air in an elegant and controlled fashion. high quality. realistic motion. dance."
-)
+# run(
+#     'driving_videos/head_turner.mp4',
+#     'source_images/paper_dragon2.png',
+#     prompt="A low-poly dragon made out of vibrant-colored paper patches that is turned its head around while talking, origami-style, the video contains sharp details, articulated motion, and realistic motion of the dragon's head"
+# )
+
+# run(
+#     'driving_videos/hand_puppet_slow.mp4',
+#     'source_images/paper_dragon1.png',
+#     prompt="A low-poly dragon made out of vibrant-colored paper patches that is turned its head around while talking, origami-style"
+# )
 
 print('Done')
