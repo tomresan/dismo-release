@@ -182,5 +182,5 @@ map_dismo_checkpoint.py
 test_dataloading.py
 test_motion_transfer.py
 .vscode/
-videos/
-images/
+driving_videos/
+source_images/
