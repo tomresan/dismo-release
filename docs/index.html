@@ -283,9 +283,9 @@
           <div class="content has-text-justified">
             <img src="static/images/architecture.svg" alt="" style="width: 100%; height: auto; margin-bottom: 20px;">
             <p class="has-text-justified" style="font-size: 16px;">
-              <b>(a)</b> Our motion extractor receives augmented video frames and outputs a motion embedding for each, which represents the higher-level temporal dynamics at that time. These are then individually passed to a frame generator, alongside the corresponding source frame, from which it learns to reconstruct a frame at a future timestep. 
-              <b>(b)</b> To transfer a sequence of motion embeddings onto another target image, we can directly utilize the trained frame generator autoregressively as a low-cost option.
-              <b>(c)</b> For high-quality motion transfer, we adapt pre-trained off-the-shelf video generation models. A motion sequence is first embedded using a mapping network, before being introduced to the frozen video model. The processed motion sequence is arranged such that each token at a specific timestep in the pre-trained backbone receives conditioning only from the temporally corresponding motion embedding.
+              <b>(a)</b> During training, our motion extractor receives augmented video frames and outputs a sequence of motion embeddings. These are then individually passed to a frame generator, alongside the corresponding source frame, from which it learns to reconstruct a frame at a future timestep. 
+              <b>(b)</b> To transfer a sequence of motion embeddings onto another target image, we can utilize the frame generator autoregressively as a low-cost option.
+              <b>(c)</b> For high-quality motion transfer, we adapt pre-trained off-the-shelf video models using conditional LoRA layers. The motion sequence is arranged such that each video token receives a conditioning signal only from the motion embedding that is temporally aligned to it.
             </p>
           </div>
         </div>
@@ -378,11 +378,7 @@
 
           <figure class="metric-figure">
             <img src="static/images/motion_transfer_eval_automated.svg"
-                 alt="Quantitative motion transfer evaluation with automatic and human metrics where DisMo outperforms all baselines without a trade-off between motion fidelity and prompt adherence.">
-            <figcaption>
-              <b>Figure:</b> Automatic and human evaluation of motion transfer. Unlike existing methods, which trade
-              off motion fidelity and prompt adherence, <b>DisMo</b> is best in both metrics without sacrificing either.
-            </figcaption>
+                 alt="Quantitative motion transfer evaluation with automatic metrics where DisMo outperforms all baselines without a trade-off between motion fidelity and prompt adherence.">
           </figure>
         </div>
       </div>
@@ -411,10 +407,6 @@
           <figure class="metric-figure">
             <img src="static/images/disentanglement_eval.svg"
                  alt="k-NN retrieval evaluation showing that DisMo retrieves clips with the same action and different identities, while baselines focus on identity.">
-            <figcaption>
-              <b>Figure:</b> k-NN retrieval analysis. <b>DisMo</b> focuses on motion semantics (same action, different
-              identity), whereas generic video representation baselines primarily capture identity and appearance.
-            </figcaption>
           </figure>
         </div>
       </div>
@@ -443,11 +435,6 @@
           <figure class="metric-figure">
             <img src="static/images/knn_action_classification_eval.svg"
                  alt="Zero-shot action classification results showing DisMo outperforming other video representation baselines.">
-            <figcaption>
-              <b>Figure:</b> Zero-shot action classification on benchmarks such as Something-Something v2 and Jester.
-              <b>DisMo</b> achieves superior performance, indicating that its motion representations encode
-              meaningful action semantics that can be leveraged beyond motion transfer.
-            </figcaption>
           </figure>
         </div>
       </div>
