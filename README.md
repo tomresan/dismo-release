@@ -1,7 +1,8 @@
 [![Project Page](https://img.shields.io/badge/Project-Page-blue)](https://compvis.github.io/dismo/)
 [![Paper](https://img.shields.io/badge/arXiv-paper-b31b1b)](https://openreview.net/forum?id=jneVld5iZw)
 [![Weights](https://img.shields.io/badge/HuggingFace-Weights-orange)](https://huggingface.co/CompVis/dismo)
-<h2 align="center"><i>DisMo</i>: Disentangled Motion Representations for Open-World Motion Transfer</h2>
+<h2 align="center"><i>DisMo</i>: Disentangled Motion Representations</h2>
+<h2 align="center"><i>DisMo</i>: for Open-World Motion Transfer</h2>
 <div align="center"> 
   <a href="https://www.linkedin.com/in/thomas-ressler-494758133/" target="_blank">Thomas Ressler-Antal</a> · 
   <a href="https://ffundel.de/" target="_blank">Frank Fundel</a><sup>*</sup> · 
@@ -74,7 +75,7 @@ cogvideox.requires_grad_(False)
 cogvideox.eval()
 ```
 
-You can use the model's `sample` function to generate new videos by transferring motion from `motion_videos` to `images`. Since CogVideoX is a text-to-video model at its core, we recommend to additionally provide describing `prompts` alongside the target images for better generation results:
+You can then use the model's `sample` function to generate new videos by transferring motion from `motion_videos` to `images`. Since CogVideoX is a text-to-video model at its core, we recommend to additionally provide describing `prompts` alongside the target images for better generation results:
 ```
 generated_videos = cogvideox.sample(
     motion_videos=driving_videos,
@@ -133,7 +134,7 @@ Remove `--compile True` for significantly faster startup time at the cost of slo
 
 
 ## 🤖 Models
-We release the weights of our pre-trained motion extractor and LoRA weight of an adapted CogVideoX-5B-I2V model via huggingface at https://huggingface.co/CompVis (under the [CC BY-NC 4.0](https://creativecommons.org/licenses/by-nc/4.0/deed.en) license). We will potentially release other model variants in the future, e.g., more recent and powerful video models, from which DisMo might benefit from. Due to legal concerns, we do not release the weights of the frame generator that was trained alongside the motion extractor.
+We release the weights of our pre-trained motion extractor and LoRA weight of an adapted CogVideoX-5B-I2V model via huggingface at https://huggingface.co/CompVis (under the [CC BY-NC 4.0](https://creativecommons.org/licenses/by-nc/4.0/deed.en) license). We will release other model variants in the future, e.g., more recent and powerful video models, from which DisMo might benefit from. Due to legal concerns, we do not release the weights of the frame generator that was trained alongside the motion extractor.
 
 ## Code Credit
 - Some code is adapted from [flow-poke-transformer](https://github.com/CompVis/flow-poke-transformer) by Stefan A. Baumann et al. (LMU), which in turn adapts some code from  [k-diffusion](https://github.com/crowsonkb/k-diffusion) by Katherine Crowson (MIT)

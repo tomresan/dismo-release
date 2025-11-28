@@ -15,7 +15,6 @@ def run(motion_video_path, source_image_path, prompt="", output_dir="output/"):
 
     ckpt = torch.load("/export/home/tressler/dismo_release_checkpoints/cogvideox_5b_ti2v_large_600k_40k_koala.pt", map_location='cpu')
     cog = CogVideoXMotionAdapter_5B_TI2V_Large(
-        motion_extractor_ckpt_path="/export/home/tressler/dismo_release_checkpoints/motion_extractor_large_600k.pt",
         vae_slicing=True,
         vae_tiling=True,
     )
@@ -30,10 +29,11 @@ def run(motion_video_path, source_image_path, prompt="", output_dir="output/"):
         images=[src_image.cuda()],
         prompts=[prompt],
         progress_bar=True,
-        n_steps=100,
+        n_steps=50,
+        text_guidance_scale=1.0,
         # text_guidance_scale=10.0,
         generator=torch.Generator('cuda').manual_seed(19), # 13 is good
-        # negative_prompt="incorrect number of fingers, irregular body parts, unproportionally long arms, incorrect anatomy, worst quality, inconsistent motion, blurry, jittery, distorted, ad pop-up, news pop-up",
+        negative_prompt="irregular body parts, incorrect anatomy, worst quality, inconsistent motion, blurry, jittery, distorted, ad pop-up, news pop-up",
     ).cpu()
 
     video_grid = torch.cat(list(gen_videos.unbind(0)), dim=-2)
