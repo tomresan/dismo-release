@@ -87,7 +87,7 @@ generated_videos = cogvideox.sample(
 The sample function comes with some other arguments (e.g., classifier-free text guidance). Please have a look in the code for more details.
 
 ### Motion Extraction
-The motion extractor being used internally during motion transfer can also be used as a standalone model to extract a stream of abstract motion embeddings from input videos. This might useful for analysis purposes or other downstream tasks. You can load our pre-trained motion extractor as follows:
+The motion extractor being used internally during motion transfer can also be used as a standalone model to extract a stream of abstract motion embeddings from input videos. This might be useful for video analysis purposes or other downstream tasks. You can load our pre-trained motion extractor as follows:
 ```
 from dismo.model import MotionExtractor_Large
 
@@ -99,7 +99,7 @@ motion_extractor.load_state_dict(
     torch.load("/path/to/motion/extractor/checkpoint")
 )
 ```
-DisMo was trained on video clips of temporal length 8. To be able to extract motion sequences from videos of arbitrary duration, we provide the `forward_sliding` function, which extracts embeddings consecutively in a sliding window fashion:
+DisMo was trained on video clips with a temporal lenngth of 8. To be able to extract motion sequences from videos of arbitrary duration, we provide the `forward_sliding` function, which extracts embeddings consecutively in a sliding window fashion:
 ```
 import torch
 
