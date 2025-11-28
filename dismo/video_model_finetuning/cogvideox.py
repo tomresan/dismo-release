@@ -68,7 +68,7 @@ class CogVideoXMotionAdapter(nn.Module):
         self, 
         model_path: str | Path,
         motion_extractor_params: Dict[str, Any],
-        motion_extractor_ckpt_path: str | Path,
+        # motion_extractor_ckpt_path: str | Path,
         d_cond_lora: int = 1024,
         text_conditioning: bool = True,
         weight_dtype = torch.bfloat16,
@@ -80,7 +80,7 @@ class CogVideoXMotionAdapter(nn.Module):
         super().__init__()
         os.environ["TOKENIZERS_PARALLELISM"] = "false"
         self.motion_extractor = MotionExtractor(**motion_extractor_params)
-        self.motion_extractor.load_state_dict(torch.load(motion_extractor_ckpt_path, map_location='cpu'))
+        # self.motion_extractor.load_state_dict(torch.load(motion_extractor_ckpt_path, map_location='cpu'))
         self.model_path = model_path
         self.d_cond_lora = d_cond_lora
         self.text_conditioning = text_conditioning

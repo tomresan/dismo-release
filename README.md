@@ -59,24 +59,22 @@ conda install ffmpeg
 ```
 
 ## 🚀 Usage
-To use DisMo for motion transfer, we provide the code and LoRA weights of an adapted CogVideoX-5B video model, which is conditioned on motion embeddings and text prompts. You can load the default model variant as follows:
+To use DisMo for motion transfer purposes, we provide the code and LoRA weights of an adapted CogVideoX-5B-I2V video model,conditioned on motion embeddings and text prompts. The simplest way to use it is via `torch.hub`:
+```
+cogvideox = torch.hub.load("CompVis/DisMo", "cogvideox5b_i2v_large")
+```
+
+Alternatively, you can also instantiate and load the model yourself:
 ```
 from dismo.video_model_finetuning.cogvideox import CogVideoXMotionAdapter_5B_TI2V_Large
-
-cogvideox = CogVideoXMotionAdapter_5B_TI2V_Large(
-    motion_extractor_ckpt_path="/path/to/motion/extractor/checkpoint",
-    vae_slicing=True,  # reduces VRAM
-    vae_tiling=True,  # reduces VRAM
-)
-cogvideox.eval()
+cogvideox = CogVideoXMotionAdapter_5B_TI2V_Large()
+state_dict = torch.load("/path/to/finetuned/cogvideox/checkpoint/cogvideox5b_i2v_large.pt")
+cogvideox.load_state_dict(state_dict, strict=False)
 cogvideox.requires_grad_(False)
-cogvideox.to(device)
-cogvideox.load_state_dict(
-    torch.load("/path/to/finetuned/cogvideox/checkpoint"), 
-    strict=False
-)
+cogvideox.eval()
 ```
-Afterwards you can use the model's `sample` function for generating new videos by transferring motion from `motion_videos` to `images`. Since CogVideoX is a text-to-video model at its core, we recommend to additionally provide describing `prompts` alongside the target images for better generation results:
+
+You can use the model's `sample` function to generate new videos by transferring motion from `motion_videos` to `images`. Since CogVideoX is a text-to-video model at its core, we recommend to additionally provide describing `prompts` alongside the target images for better generation results:
 ```
 generated_videos = cogvideox.sample(
     motion_videos=driving_videos,
@@ -87,19 +85,22 @@ generated_videos = cogvideox.sample(
 The sample function comes with some other arguments (e.g., classifier-free text guidance). Please have a look in the code for more details.
 
 ### Motion Extraction
-The motion extractor being used internally during motion transfer can also be used as a standalone model to extract a stream of abstract motion embeddings from input videos. This might be useful for video analysis purposes or other downstream tasks. You can load our pre-trained motion extractor as follows:
+During motion transfer, the video model internally uses DisMo's pre-trained motion extractor for encoding input videos into motion embeddings. However, the motion extractor can also be used as a standalone model to extract sequences of motion embeddings from input videos. This might be useful for video analysis purposes or other downstream tasks. Once again, the easiest way to load the model is via `torch.hub`:
+```
+motion_extractor = torch.hub.load("CompVis/DisMo", "motion_extractor_large")
+```
+
+Similarly, you can also manually instantiate and load the model:
 ```
 from dismo.model import MotionExtractor_Large
-
 motion_extractor = MotionExtractor_Large()
-motion_extractor.eval()
+state_dict = torch.load("/path/to/motion/extractor/checkpoint/motion_extractor_large.pt")
+motion_extractor.load_state_dict(state_dict)
 motion_extractor.requires_grad_(False)
-motion_extractor.to(device)
-motion_extractor.load_state_dict(
-    torch.load("/path/to/motion/extractor/checkpoint")
-)
+motion_extractor.eval()
 ```
-DisMo was trained on video clips with a temporal lenngth of 8. To be able to extract motion sequences from videos of arbitrary duration, we provide the `forward_sliding` function, which extracts embeddings consecutively in a sliding window fashion:
+
+To extract motion sequences from arbitrarily long videos, we provide the `forward_sliding` function, which extracts embeddings consecutively in a sliding window fashion. This is necessary, since DisMo only saw video clips of length 8 during training:
 ```
 import torch
 
