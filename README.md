@@ -2,7 +2,7 @@
 [![Paper](https://img.shields.io/badge/arXiv-paper-b31b1b)](https://openreview.net/forum?id=jneVld5iZw)
 [![Weights](https://img.shields.io/badge/HuggingFace-Weights-orange)](https://huggingface.co/CompVis/dismo)
 <h2 align="center">
-  <i>DisMo</i>: Disentangled Motion Representations<br/>for Open-World Motion Transfer
+  <i>DisMo</i>: Disentangled Motion Representations for Open-World Motion Transfer
 </h2>
 <div align="center"> 
   <a href="https://www.linkedin.com/in/thomas-ressler-494758133/" target="_blank">Thomas Ressler-Antal</a> · 
