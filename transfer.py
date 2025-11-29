@@ -29,7 +29,7 @@ def run(motion_video_path, source_image_path, prompt="", output_dir="output/"):
         images=[src_image.cuda()],
         prompts=[prompt],
         progress_bar=True,
-        n_steps=50,
+        n_steps=200,
         text_guidance_scale=1.0,
         # text_guidance_scale=10.0,
         generator=torch.Generator('cuda').manual_seed(19), # 13 is good
