@@ -135,7 +135,7 @@ Remove `--compile True` for significantly faster startup time at the cost of slo
 
 
 ## 🤖 Models
-We release the weights of our pre-trained motion extractor and LoRA weight of an adapted CogVideoX-5B-I2V model via huggingface at https://huggingface.co/CompVis/DisMo under the [CC BY-NC 4.0](https://creativecommons.org/licenses/by-nc/4.0/deed.en) license. If you are interested in using our model weights for commercial use-cases, please <a href="mailto:assist.mvl@rz.uni-muenchen.de">contact us</a>. We will release other model variants in the future, <i>e.g.,</i> more sophisticated fine-tuned video models. Due to legal concerns, we do not release the weights of the frame generator that was trained alongside the motion extractor.
+We release the weights of our pre-trained motion extractor and LoRA weight of an adapted CogVideoX-5B-I2V model [via huggingface](https://huggingface.co/CompVis/DisMo) under the [CC BY-NC 4.0](https://creativecommons.org/licenses/by-nc/4.0/deed.en) license. If you are interested in using our model weights commercially, please <a href="mailto:assist.mvl@rz.uni-muenchen.de">contact us</a>. We will release other model variants in the future, <i>e.g.,</i> more sophisticated fine-tuned video models. Due to legal concerns, we do not release the weights of the frame generator that was trained alongside the motion extractor.
 
 ## Code Credit
 - Some code is adapted from [flow-poke-transformer](https://github.com/CompVis/flow-poke-transformer) by Stefan A. Baumann et al. (LMU), which in turn adapts some code from  [k-diffusion](https://github.com/crowsonkb/k-diffusion) by Katherine Crowson (MIT)

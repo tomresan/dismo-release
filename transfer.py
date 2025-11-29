@@ -29,8 +29,8 @@ def run(motion_video_path, source_image_path, prompt="", output_dir="output/"):
         images=[src_image.cuda()],
         prompts=[prompt],
         progress_bar=True,
-        n_steps=200,
-        text_guidance_scale=3.5,
+        n_steps=100,
+        text_guidance_scale=4.5,
         # text_guidance_scale=10.0,
         generator=torch.Generator('cuda').manual_seed(19), # 13 is good
         negative_prompt="irregular body parts, incorrect anatomy, worst quality, inconsistent motion, blurry, jittery, distorted, ad pop-up, news pop-up",
